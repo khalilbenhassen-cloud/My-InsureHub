@@ -1,0 +1,72 @@
+import { useState } from 'react';
+import { Upload } from 'lucide-react';
+
+interface UploadDropzoneProps {
+  onFileChange: (file: File) => void;
+  onLanguageChange: (language: string) => void;
+  language: string;
+}
+
+export function UploadDropzone({ onFileChange, onLanguageChange, language }: UploadDropzoneProps) {
+  const [file, setFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const droppedFile = e.dataTransfer.files[0];
+    if (droppedFile && droppedFile.type === 'application/pdf') {
+      setFile(droppedFile);
+      onFileChange(droppedFile);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile && selectedFile.type === 'application/pdf') {
+      setFile(selectedFile);
+      onFileChange(selectedFile);
+    }
+  };
+
+  return (
+    <div className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors flex flex-col items-center justify-center ${
+          isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400 bg-white'
+        }`}
+         onDragOver={handleDragOver}
+         onDragLeave={handleDragLeave}
+         onDrop={handleDrop}>
+      <input type="file"
+             accept=".pdf"
+             className="hidden"
+             onChange={handleFileSelect} />
+      <div className="space-y-4 flex flex-col items-center">
+        <Upload className="h-12 w-12 text-blue-500 mb-2" />
+        <p className="text-sm text-gray-600 font-medium">
+          Click to upload or drag and drop a PDF file (max 20MB)
+        </p>
+        {file && (
+          <p className="text-sm font-semibold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
+            {file.name} ({Math.round(file.size / 1024 / 1024)} MB)
+          </p>
+        )}
+        {!file && (
+          <button type="button" onClick={() => document.querySelector('input[type="file"]')?.click()}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition-colors shadow-sm">
+            Select PDF
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
