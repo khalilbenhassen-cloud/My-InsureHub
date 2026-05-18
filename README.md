@@ -1,4 +1,4 @@
-# My InsureHub (Formerly PolicyLens)
+# My InsureHub
 
 A full-stack, "Digital Filing Cabinet" web app where users can store, manage, and analyze multiple insurance contracts in a centralized platform.
 
