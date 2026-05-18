@@ -2,6 +2,15 @@
 
 A full-stack, "Digital Filing Cabinet" web app where users can store, manage, and analyze multiple insurance contracts in a centralized platform.
 
+### App Screenshots
+| Dashboard | All Policies |
+| :---: | :---: |
+| ![Dashboard](assets/MyInsureHub%20-%20Dashboard.JPG) | ![Policies](assets/MyInsureHub%20-%20Policies.JPG) |
+
+| AI Policy Assistant | Global Claims Tracker |
+| :---: | :---: |
+| ![Policy Assistant](assets/MyInsureHub%20-%20PolicyAssistant.JPG) | ![Claims](assets/MyInsureHub%20-%20Claims.JPG) |
+
 ## 🚀 Features
 
 - **Multi-Policy Vault**: Upload and store multiple insurance policies (Auto, Home, Health, Life).
