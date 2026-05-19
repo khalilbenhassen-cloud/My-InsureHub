@@ -60,21 +60,10 @@ export function TopNav() {
         <div className="flex justify-between items-center h-16">
           
           {/* Logo */}
-          <div className="flex items-center gap-2 w-64">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="32" height="32" rx="10" fill="url(#paint0_linear)"/>
-              <path fillRule="evenodd" clipRule="evenodd" d="M16 6C16 6 10.5 7.5 7 8C7 16.5 9 22.5 16 26C23 22.5 25 16.5 25 8C21.5 7.5 16 6 16 6ZM14.5 18.5L10.5 14.5L12 13L14.5 15.5L19.5 10.5L21 12L14.5 18.5Z" fill="white"/>
-              <defs>
-                <linearGradient id="paint0_linear" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#3B82F6"/>
-                  <stop offset="1" stopColor="#06b6d4"/>
-                </linearGradient>
-              </defs>
-            </svg>
-            <Link href="/dashboard" className="text-[22px] font-bold text-gray-900 tracking-tight ml-1">
-              My InsureHub
-            </Link>
-          </div>
+          <Link href="/dashboard" className="flex items-center gap-2 w-64">
+            <img src="/logo.png" alt="InsureHub Logo" className="h-8 w-auto object-contain mix-blend-multiply" />
+            <span className="font-extrabold text-2xl text-brand-navy tracking-tighter uppercase">InsureHub</span>
+          </Link>
 
           {/* Center Links */}
           <nav className="hidden md:flex space-x-8">
@@ -86,7 +75,7 @@ export function TopNav() {
                   href={item.path}
                   className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${
                     isActive
-                      ? 'border-blue-600 text-gray-900'
+                      ? 'border-brand-orange text-brand-navy'
                       : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                   }`}
                 >
@@ -114,7 +103,7 @@ export function TopNav() {
               <img 
                 src={userPhoto} 
                 alt="Profile" 
-                className="h-8 w-8 rounded-full bg-blue-50 border border-blue-100 object-cover"
+                className="h-8 w-8 rounded-full bg-[#F5F3EC] border border-[#B8C7BA] object-cover"
               />
               <span className="text-sm font-medium text-gray-700 hidden sm:block">{user?.full_name || 'My Profile'}</span>
             </Link>

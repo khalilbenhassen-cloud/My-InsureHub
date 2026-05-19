@@ -43,7 +43,7 @@ export function UploadDropzone({ onFileChange, onLanguageChange, language }: Upl
 
   return (
     <div className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors flex flex-col items-center justify-center ${
-          isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400 bg-white'
+          isDragging ? 'border-brand-orange bg-brand-orange/5' : 'border-gray-300 hover:border-brand-orange/80 bg-white'
         }`}
          onDragOver={handleDragOver}
          onDragLeave={handleDragLeave}
@@ -53,7 +53,7 @@ export function UploadDropzone({ onFileChange, onLanguageChange, language }: Upl
              className="hidden"
              onChange={handleFileSelect} />
       <div className="space-y-4 flex flex-col items-center">
-        <Upload className="h-12 w-12 text-blue-500 mb-2" />
+        <Upload className="h-12 w-12 text-brand-orange mb-2" />
         <p className="text-sm text-gray-600 font-medium">
           {t('upload_instructions')}
         </p>
@@ -64,7 +64,7 @@ export function UploadDropzone({ onFileChange, onLanguageChange, language }: Upl
         )}
         {!file && (
           <button type="button" onClick={() => document.querySelector('input[type="file"]')?.click()}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition-colors shadow-sm">
+                  className="px-6 py-2 bg-brand-orange text-white rounded-md font-medium hover:opacity-90 transition-colors shadow-sm">
             {t('select_pdf')}
           </button>
         )}

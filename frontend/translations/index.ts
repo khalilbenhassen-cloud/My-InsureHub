@@ -148,7 +148,46 @@ export const translations = {
     
     // Upload Dropzone
     upload_instructions: "Click to upload or drag and drop a PDF file (max 20MB)",
-    select_pdf: "Select PDF"
+    select_pdf: "Select PDF",
+    
+    // Landing Page
+    land_sign_in: "Sign In",
+    land_get_started: "Get Started Free",
+    land_badge: "The future of digital filing cabinets",
+    land_headline_1: "Manage your insurance",
+    land_headline_2: "without the headache.",
+    land_subhead: "Centralize your policies in one secure vault, chat directly with your contracts using our AI assistant to instantly understand your coverage, and track all your claims in one place. Designed for humans, powered by AI.",
+    land_start_free: "Start for free",
+    land_sign_in_acc: "Sign in to account",
+    land_no_cc: "No credit card required. Free forever tier available.",
+    land_active_policies: "Active Policies",
+    land_ai_agent: "InsureAI Agent",
+    land_ai_message: "Your Auto policy covers up to $50,000 in property damage. Would you like me to file a claim?",
+    land_features_title: "Everything you need to stay protected.",
+    land_features_sub: "InsureHub is the only platform that combines secure document storage with context-aware Artificial Intelligence.",
+    land_feat1_title: "Secure Digital Vault",
+    land_feat1_desc: "Safely store Auto, Home, Health, and Life insurance policies in one encrypted location. Never lose a contract again.",
+    land_feat2_title: "Context-Aware AI",
+    land_feat2_desc: "Our LLaMA-powered AI reads your specific contracts and instantly answers questions about your coverages and deductibles.",
+    land_feat3_title: "Global Claims Tracker",
+    land_feat3_desc: "Log your claims, track repair costs, and automatically contact support with our built-in helpdesk system.",
+    land_feat4_title: "Effortlessly Simple",
+    land_feat4_desc: "No insurance jargon or complex menus. Enjoy a beautiful, user-friendly interface that anyone can navigate with zero training.",
+    land_showcase1_title: "A Centralized Dashboard",
+    land_showcase1_desc: "Get a clear, real-time overview of your entire insurance portfolio. View your active policies, monitor your total annual cost, and track ongoing claims from a single, beautifully designed interface.",
+    land_showcase1_link: "Explore the Dashboard",
+    land_showcase2_title: "Meet Your AI Policy Assistant",
+    land_showcase2_desc: "Stop reading 50-page contracts. Our built-in AI assistant instantly answers questions about your coverages, limits, and deductibles based strictly on the actual documents you upload.",
+    land_showcase2_link: "Try the Assistant",
+    land_b2b_title: "Built for scale. Designed for speed.",
+    land_b2b_sub: "Whether you're managing personal policies or handling enterprise accounts, our secure backend infrastructure is ready.",
+    land_kpi: "KPI Analytics",
+    land_users: "User Management",
+    land_security: "Bank-Grade Security",
+    land_copyright: "© {year} InsureHub Inc. All rights reserved.",
+    land_privacy: "Privacy",
+    land_terms: "Terms",
+    land_contact: "Contact"
   },
   fr: {
     // Navigation
@@ -299,7 +338,46 @@ export const translations = {
 
     // Upload Dropzone
     upload_instructions: "Cliquez ou glissez-déposez un fichier PDF (max 20MB)",
-    select_pdf: "Sélectionner un PDF"
+    select_pdf: "Sélectionner un PDF",
+    
+    // Landing Page
+    land_sign_in: "Se connecter",
+    land_get_started: "Démarrer gratuitement",
+    land_badge: "L'avenir des coffres-forts numériques",
+    land_headline_1: "Gérez vos assurances",
+    land_headline_2: "sans prise de tête.",
+    land_subhead: "Centralisez vos polices dans un coffre sécurisé, discutez directement avec vos contrats grâce à notre assistant IA pour comprendre instantanément vos couvertures, et suivez tous vos sinistres au même endroit. Conçu pour les humains, propulsé par l'IA.",
+    land_start_free: "Démarrer gratuitement",
+    land_sign_in_acc: "Se connecter au compte",
+    land_no_cc: "Aucune carte de crédit requise. Version gratuite disponible à vie.",
+    land_active_policies: "Polices actives",
+    land_ai_agent: "Agent InsureAI",
+    land_ai_message: "Votre police Auto couvre jusqu'à 50 000 $ de dommages matériels. Voulez-vous que je déclare un sinistre ?",
+    land_features_title: "Tout ce dont vous avez besoin pour rester protégé.",
+    land_features_sub: "InsureHub est la seule plateforme qui combine un stockage sécurisé de documents avec une Intelligence Artificielle contextuelle.",
+    land_feat1_title: "Coffre Numérique Sécurisé",
+    land_feat1_desc: "Stockez en toute sécurité vos polices d'assurance Auto, Habitation, Santé et Vie dans un emplacement crypté.",
+    land_feat2_title: "IA Contextuelle",
+    land_feat2_desc: "Notre IA lit vos contrats spécifiques et répond instantanément aux questions sur vos couvertures et vos franchises.",
+    land_feat3_title: "Suivi Global des Sinistres",
+    land_feat3_desc: "Déclarez vos sinistres, suivez les coûts de réparation et contactez automatiquement l'assistance.",
+    land_feat4_title: "Simple et Intuitif",
+    land_feat4_desc: "Pas de jargon d'assurance ni de menus complexes. Profitez d'une interface belle et ergonomique que tout le monde peut utiliser sans formation.",
+    land_showcase1_title: "Un Tableau de Bord Centralisé",
+    land_showcase1_desc: "Obtenez un aperçu clair et en temps réel de tout votre portefeuille d'assurances. Consultez vos polices actives, surveillez votre coût annuel total et suivez vos sinistres en cours depuis une interface unique.",
+    land_showcase1_link: "Explorer le Tableau de Bord",
+    land_showcase2_title: "Rencontrez votre Assistant IA",
+    land_showcase2_desc: "Arrêtez de lire des contrats de 50 pages. Notre assistant IA intégré répond instantanément à vos questions sur vos couvertures, limites et franchises en se basant strictement sur les documents que vous téléchargez.",
+    land_showcase2_link: "Essayer l'Assistant",
+    land_b2b_title: "Conçu pour l'échelle. Pensé pour la vitesse.",
+    land_b2b_sub: "Que vous gériez des polices personnelles ou des comptes d'entreprise, notre infrastructure sécurisée est prête.",
+    land_kpi: "Analytiques KPI",
+    land_users: "Gestion des utilisateurs",
+    land_security: "Sécurité de niveau bancaire",
+    land_copyright: "© {year} InsureHub Inc. Tous droits réservés.",
+    land_privacy: "Confidentialité",
+    land_terms: "Conditions",
+    land_contact: "Contact"
   }
 };
 

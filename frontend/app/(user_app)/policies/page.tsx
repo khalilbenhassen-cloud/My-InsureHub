@@ -65,7 +65,7 @@ export default function PoliciesPage() {
           <h1 className="text-2xl font-bold text-gray-900">{t('all_policies')}</h1>
           <p className="text-gray-500 text-sm mt-1">{t('policies_subtitle')}</p>
         </div>
-        <Link href="/dashboard" className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm">
+        <Link href="/dashboard" className="flex items-center gap-2 bg-brand-orange text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-colors shadow-sm">
           <PlusCircle className="h-4 w-4" />
           {t('add_policy')}
         </Link>
@@ -95,8 +95,8 @@ export default function PoliciesPage() {
                 <tr key={policy.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10 bg-blue-50 rounded-lg flex items-center justify-center">
-                        <FileText className="h-5 w-5 text-blue-600" />
+                      <div className="flex-shrink-0 h-10 w-10 bg-brand-navy/10 rounded-lg flex items-center justify-center">
+                        <FileText className="h-5 w-5 text-brand-navy" />
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">{policy.company_name}</div>
@@ -130,7 +130,7 @@ export default function PoliciesPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end gap-2">
-                      <Link href={`/policies/${policy.id}`} className="text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1.5 rounded-md hover:bg-blue-100 transition-colors">
+                      <Link href={`/policies/${policy.id}`} className="text-brand-navy hover:text-brand-navy/80 bg-brand-navy/10 px-3 py-1.5 rounded-md hover:bg-brand-navy/20 transition-colors">
                         {t('view_details')}
                       </Link>
                       <button 

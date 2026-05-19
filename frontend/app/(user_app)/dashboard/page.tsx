@@ -88,11 +88,11 @@ export default function DashboardPage() {
 
   const getThemeColors = (type: string) => {
     const t = type.toLowerCase();
-    if (t.includes('auto')) return 'bg-blue-50 text-blue-900';
-    if (t.includes('home')) return 'bg-sky-50 text-sky-900';
+    if (t.includes('auto')) return 'bg-brand-navy/10 text-brand-navy';
+    if (t.includes('home')) return 'bg-brand-sage/20 text-brand-navy';
     if (t.includes('health')) return 'bg-red-50 text-red-900';
-    if (t.includes('life')) return 'bg-indigo-50 text-indigo-900';
-    return 'bg-blue-50 text-blue-900';
+    if (t.includes('life')) return 'bg-brand-navy text-white';
+    return 'bg-brand-navy/10 text-brand-navy';
   };
 
   return (
@@ -110,7 +110,7 @@ export default function DashboardPage() {
         </div>
         <button 
           onClick={() => setShowUploadModal(!showUploadModal)}
-          className="bg-[#0D7AF5] hover:bg-blue-600 text-white px-5 py-2.5 rounded-lg text-[15px] font-medium flex items-center gap-2 transition-colors shadow-sm"
+          className="bg-brand-orange hover:opacity-90 text-white px-5 py-2.5 rounded-lg text-[15px] font-medium flex items-center gap-2 transition-colors shadow-sm"
         >
           <Plus className="h-5 w-5" /> {t('add_policy')}
         </button>
@@ -135,7 +135,7 @@ export default function DashboardPage() {
                 className={`px-6 py-2.5 rounded-lg font-medium transition-colors shadow-sm ${
                   !file || isUploading
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-[#0D7AF5] text-white hover:bg-blue-600'
+                    : 'bg-brand-orange text-white hover:opacity-90'
                 }`}
               >
                 {isUploading ? t('extracting') : t('analyze_save')}
@@ -230,7 +230,7 @@ export default function DashboardPage() {
                   {/* Button */}
                   <button 
                     onClick={() => router.push(`/policies/${policy.id}`)}
-                    className="w-full mt-auto bg-[#0D7AF5] hover:bg-blue-600 text-white font-medium py-3 rounded-xl transition-colors shadow-sm"
+                    className="w-full mt-auto bg-brand-orange hover:opacity-90 text-white font-medium py-3 rounded-xl transition-colors shadow-sm"
                   >
                     {t('view_policy')}
                   </button>

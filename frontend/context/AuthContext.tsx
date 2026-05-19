@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .finally(() => setIsLoading(false));
     } else {
       setIsLoading(false);
-      if (pathname !== '/login' && pathname !== '/register' && pathname !== '/admin/login') {
+      if (pathname !== '/' && pathname !== '/login' && pathname !== '/register' && pathname !== '/admin/login') {
          router.push('/login');
       }
     }

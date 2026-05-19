@@ -40,7 +40,7 @@ export function Sidebar() {
             title={item.label}
             className={`p-3 rounded-xl transition-colors ${
               isActive 
-                ? 'bg-blue-50 text-blue-600' 
+                ? 'bg-brand-navy text-white shadow-md' 
                 : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
             }`}
           >

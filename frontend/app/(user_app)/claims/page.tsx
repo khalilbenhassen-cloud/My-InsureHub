@@ -119,12 +119,12 @@ export default function ClaimsPage() {
                 const isEditing = editingClaimId === claim.id;
                 
                 return (
-                <tr key={claim.id} className={`${isEditing ? 'bg-blue-50' : 'hover:bg-gray-50'} transition-colors`}>
+                <tr key={claim.id} className={`${isEditing ? 'bg-brand-navy/5' : 'hover:bg-gray-50'} transition-colors`}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(claim.date_filed).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <Link href={`/policies/${claim.policy_id}`} className="text-blue-600 hover:underline text-sm font-medium">
+                    <Link href={`/policies/${claim.policy_id}`} className="text-brand-navy hover:underline text-sm font-bold">
                       #{claim.policy_id}
                     </Link>
                   </td>
@@ -134,7 +134,7 @@ export default function ClaimsPage() {
                         type="text" 
                         value={editFormData.description} 
                         onChange={(e) => setEditFormData({...editFormData, description: e.target.value})}
-                        className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-brand-orange focus:border-brand-orange"
                       />
                     ) : (
                       <div className="text-sm text-gray-900">{claim.description}</div>
@@ -148,7 +148,7 @@ export default function ClaimsPage() {
                           type="number" 
                           value={editFormData.amount} 
                           onChange={(e) => setEditFormData({...editFormData, amount: parseFloat(e.target.value)})}
-                          className="w-24 border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-blue-500 focus:border-blue-500"
+                          className="w-24 border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-brand-orange focus:border-brand-orange"
                         />
                       </div>
                     ) : (
@@ -163,7 +163,7 @@ export default function ClaimsPage() {
                       <select 
                         value={editFormData.status} 
                         onChange={(e) => setEditFormData({...editFormData, status: e.target.value})}
-                        className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-blue-500 focus:border-blue-500 bg-white"
+                        className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-brand-orange focus:border-brand-orange bg-white"
                       >
                         <option value="Pending">{t('pending')}</option>
                         <option value="Resolved">{t('resolved')}</option>
@@ -185,7 +185,7 @@ export default function ClaimsPage() {
                       </div>
                     ) : (
                       <div className="flex justify-end gap-2">
-                        <button onClick={() => handleEditClick(claim)} className="text-blue-600 hover:text-blue-900 p-1.5 bg-blue-50 rounded-md transition-colors" title="Edit">
+                        <button onClick={() => handleEditClick(claim)} className="text-brand-navy hover:text-brand-navy/80 p-1.5 bg-brand-navy/10 rounded-md transition-colors" title="Edit">
                           <Edit2 className="h-4 w-4" />
                         </button>
                         <button onClick={() => handleDelete(claim.id)} className="text-red-500 hover:text-red-700 p-1.5 bg-red-50 rounded-md transition-colors" title="Delete">

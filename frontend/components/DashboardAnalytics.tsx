@@ -54,7 +54,7 @@ export function DashboardAnalytics({ policies }: DashboardAnalyticsProps) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* KPI 1 */}
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] flex items-center gap-4">
-          <div className="bg-blue-50 text-[#0D7AF5] p-4 rounded-xl">
+          <div className="bg-brand-navy/10 text-brand-navy p-4 rounded-xl">
             <FileText className="w-6 h-6" />
           </div>
           <div>
