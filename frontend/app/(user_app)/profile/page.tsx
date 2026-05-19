@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { User, Home, Car, AlertTriangle, CheckCircle2, Heart, ShieldAlert, Save, Camera, Trash2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 
 interface Policy {
   id: number;
@@ -37,19 +38,30 @@ export default function ProfilePage() {
     ownsVehicle: '',
   });
   const { t } = useLanguage();
+  const { user, logout } = useAuth();
 
   // Load from local storage on mount
   useEffect(() => {
-    const saved = localStorage.getItem('userProfile');
+    if (!user) return;
+    const saved = localStorage.getItem(`userProfile_${user.email}`);
+    let loadedProfile = { ...profile };
     if (saved) {
       try {
-        setProfile(JSON.parse(saved));
+        loadedProfile = JSON.parse(saved);
       } catch (e) {
         console.error("Failed to parse saved profile", e);
       }
     }
+    
+    // Always override with DB user if available
+    if (user) {
+      loadedProfile.fullName = user.full_name;
+      loadedProfile.email = user.email;
+    }
+    
+    setProfile(loadedProfile);
     fetchPolicies();
-  }, []);
+  }, [user]);
 
   const fetchPolicies = async () => {
     try {
@@ -84,10 +96,27 @@ export default function ProfilePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem('userProfile', JSON.stringify(profile));
+    if (user) {
+      localStorage.setItem(`userProfile_${user.email}`, JSON.stringify(profile));
+    }
     setIsSaved(true);
     window.dispatchEvent(new Event('profileUpdated'));
     setTimeout(() => setIsSaved(false), 3000);
+  };
+
+  const handleDeleteAccount = async () => {
+    if (window.confirm(t('delete_account_confirm'))) {
+      try {
+        await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/users/me`);
+        if (user) {
+          localStorage.removeItem(`userProfile_${user.email}`);
+        }
+        logout();
+      } catch (error) {
+        console.error("Failed to delete account", error);
+        alert("Failed to delete account. Please try again.");
+      }
+    }
   };
 
   // Smart Alerts Logic
@@ -192,7 +221,7 @@ export default function ProfilePage() {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">{t('email_address')} <span className="text-red-500">*</span></label>
-              <input required type="email" name="email" value={profile.email} onChange={handleChange} className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="john@example.com" />
+              <input required type="email" name="email" value={profile.email} disabled className="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-gray-500 cursor-not-allowed" placeholder="john@example.com" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">{t('phone_number')} <span className="text-red-500">*</span></label>
@@ -252,6 +281,21 @@ export default function ProfilePage() {
         </div>
 
       </form>
+
+      {/* Danger Zone */}
+      <div className="bg-red-50 rounded-2xl p-6 border border-red-100 flex flex-col md:flex-row justify-between items-center gap-4 shadow-sm mt-8">
+        <div>
+          <h3 className="text-lg font-bold text-red-800">{t('delete_account')}</h3>
+          <p className="text-sm text-red-600 mt-1">{t('delete_account_warning')}</p>
+        </div>
+        <button 
+          onClick={handleDeleteAccount}
+          className="bg-red-500 hover:bg-red-600 text-white px-6 py-2.5 rounded-xl font-medium transition-colors shadow-sm flex items-center gap-2 whitespace-nowrap"
+        >
+          <Trash2 className="h-5 w-5" /> {t('delete_account')}
+        </button>
+      </div>
+
     </div>
   );
 }

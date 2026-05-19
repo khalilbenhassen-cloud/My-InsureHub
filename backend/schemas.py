@@ -2,6 +2,29 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    email: Optional[str] = None
+
+class UserBase(BaseModel):
+    email: str
+    full_name: str
+
+class UserCreate(UserBase):
+    password: str
+
+class UserResponse(UserBase):
+    id: int
+    is_admin: bool
+    is_active: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
 # Guarantee
 class GuaranteeBase(BaseModel):
     name: str
@@ -66,6 +89,7 @@ class PolicyCreate(PolicyBase):
 
 class Policy(PolicyBase):
     id: int
+    user_id: int
     created_at: datetime
     guarantees: List[Guarantee] = []
     documents: List[Document] = []
@@ -81,3 +105,21 @@ class TicketRequest(BaseModel):
     message: str
     user_name: str
     user_email: str
+
+class TicketCreate(BaseModel):
+    category: str
+    subject: str
+    message: str
+
+class TicketResponse(TicketCreate):
+    id: int
+    user_id: int
+    status: str
+    admin_response: Optional[str] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class TicketReply(BaseModel):
+    message: str

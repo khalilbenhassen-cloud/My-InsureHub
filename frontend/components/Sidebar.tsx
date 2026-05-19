@@ -2,13 +2,17 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, ClipboardList, Car, Bell, Inbox, HelpCircle, User } from 'lucide-react';
+import { Home, ClipboardList, Car, Bell, Inbox, HelpCircle, User, Shield } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 
 export function Sidebar() {
   const pathname = usePathname();
 
   const { t } = useLanguage();
+  const { user } = useAuth();
+
+  if (pathname === '/login' || pathname === '/register') return null;
 
   const navItems = [
     { icon: Home, path: '/dashboard', label: t('dashboard') },
@@ -19,6 +23,10 @@ export function Sidebar() {
     { icon: HelpCircle, path: '/support', label: t('support') },
     { icon: User, path: '/profile', label: t('profile') },
   ];
+
+  if (user?.is_admin) {
+    navItems.push({ icon: Shield, path: '/admin', label: t('admin_panel') });
+  }
 
   return (
     <aside className="w-16 flex-shrink-0 border-r border-gray-100 bg-white flex flex-col items-center py-6 gap-8 min-h-[calc(100vh-64px)]">

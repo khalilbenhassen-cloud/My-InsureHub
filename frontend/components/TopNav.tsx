@@ -1,31 +1,41 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { ShieldCheck, Bell, Globe } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { ShieldCheck, Bell, Globe, LogOut } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 
 export function TopNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const { lang, setLang, t } = useLanguage();
-  const [userName, setUserName] = useState('My Profile');
+  const { user, logout } = useAuth();
   const [userPhoto, setUserPhoto] = useState('https://api.dicebear.com/7.x/notionists/svg?seed=Khalil');
 
+
   const loadProfileData = () => {
-    const saved = localStorage.getItem('userProfile');
+    if (!user) {
+      setUserPhoto(`https://api.dicebear.com/7.x/initials/svg?seed=User`);
+      return;
+    }
+    const defaultPhoto = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.full_name)}`;
+    const saved = localStorage.getItem(`userProfile_${user.email}`);
     if (saved) {
       try {
         const profile = JSON.parse(saved);
-        if (profile.fullName) setUserName(profile.fullName);
         if (profile.photoBase64) {
           setUserPhoto(profile.photoBase64);
         } else {
-          setUserPhoto('https://api.dicebear.com/7.x/notionists/svg?seed=Khalil');
+          setUserPhoto(defaultPhoto);
         }
       } catch (e) {
         console.error("Failed to parse user profile in TopNav", e);
+        setUserPhoto(defaultPhoto);
       }
+    } else {
+      setUserPhoto(defaultPhoto);
     }
   };
 
@@ -33,7 +43,9 @@ export function TopNav() {
     loadProfileData();
     window.addEventListener('profileUpdated', loadProfileData);
     return () => window.removeEventListener('profileUpdated', loadProfileData);
-  }, []);
+  }, [user]);
+
+  if (pathname === '/login' || pathname === '/register') return null;
 
   const navItems = [
     { name: t('dashboard'), path: '/dashboard' },
@@ -104,8 +116,15 @@ export function TopNav() {
                 alt="Profile" 
                 className="h-8 w-8 rounded-full bg-blue-50 border border-blue-100 object-cover"
               />
-              <span className="text-sm font-medium text-gray-700 hidden sm:block">{userName}</span>
+              <span className="text-sm font-medium text-gray-700 hidden sm:block">{user?.full_name || 'My Profile'}</span>
             </Link>
+            <button 
+              onClick={logout}
+              className="ml-2 text-gray-400 hover:text-red-600 transition-colors"
+              title="Logout"
+            >
+              <LogOut className="h-5 w-5" />
+            </button>
           </div>
 
         </div>

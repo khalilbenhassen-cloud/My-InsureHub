@@ -38,30 +38,19 @@ export default function SupportPage() {
     if (!ticket.subject || !ticket.message) return;
     
     setIsSubmitting(true);
-    
-    let userName = "Unknown User";
-    let userEmail = "Not Provided";
-    const savedProfile = localStorage.getItem('userProfile');
-    if (savedProfile) {
-      try {
-        const profile = JSON.parse(savedProfile);
-        if (profile.fullName) userName = profile.fullName;
-        if (profile.email) userEmail = profile.email;
-      } catch (e) {}
-    }
 
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/support/ticket`, {
-        ...ticket,
-        user_name: userName,
-        user_email: userEmail
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/tickets`, {
+        category: ticket.category,
+        subject: ticket.subject,
+        message: ticket.message
       });
       setIsSuccess(true);
       setTicket({ category: 'General Inquiry', subject: '', message: '' });
       setTimeout(() => setIsSuccess(false), 4000);
     } catch (err) {
       console.error("Failed to submit ticket", err);
-      alert("Failed to send email. Check your backend configuration and App Password.");
+      alert("Failed to send ticket. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }

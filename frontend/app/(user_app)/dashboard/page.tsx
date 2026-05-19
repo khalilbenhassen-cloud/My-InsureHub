@@ -7,6 +7,7 @@ import { UploadDropzone } from '@/components/UploadDropzone';
 import { ShieldCheck, Plus, CheckCircle2 } from 'lucide-react';
 import { DashboardAnalytics } from '@/components/DashboardAnalytics';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 
 interface Guarantee {
   name: string;
@@ -26,26 +27,15 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const { t, lang } = useLanguage();
+  const { user } = useAuth();
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [userName, setUserName] = useState('User');
   const router = useRouter();
+
+  const userName = user?.full_name ? user.full_name.split(' ')[0] : 'User';
 
   useEffect(() => {
     fetchPolicies();
-    
-    const saved = localStorage.getItem('userProfile');
-    if (saved) {
-      try {
-        const profile = JSON.parse(saved);
-        if (profile.fullName) {
-          const firstName = profile.fullName.split(' ')[0];
-          setUserName(firstName);
-        }
-      } catch (e) {
-        console.error("Failed to parse profile", e);
-      }
-    }
   }, []);
 
   const fetchPolicies = async () => {

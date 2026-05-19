@@ -6,6 +6,21 @@ export const translations = {
     claims: "Claims",
     support: "Support",
     profile: "Profile",
+    admin_panel: "Admin Panel",
+
+    // Admin Dashboard
+    admin_dashboard: "God Mode Dashboard",
+    admin_subtitle: "Platform-wide analytics and user management.",
+    total_users: "Total Users",
+    total_policies_platform: "Total Policies",
+    total_claims_platform: "Total Claims",
+    platform_health: "Platform Health",
+    user_management: "User Management",
+    delete_user_prompt: "Are you sure you want to permanently delete this user? This cannot be undone.",
+    delete_user_success: "User deleted successfully.",
+    policy_distribution: "Policy Distribution",
+    registered_on: "Registered On",
+    policy_count: "Policy Count",
 
     // Dashboard
     welcome_back: "Welcome back",
@@ -68,6 +83,9 @@ export const translations = {
     widowed: "Widowed",
     save_profile: "Save Profile",
     profile_saved: "Profile Saved",
+    delete_account: "Delete Account",
+    delete_account_confirm: "Are you sure you want to permanently delete your account and all associated policies?",
+    delete_account_warning: "This action is permanent and will delete all your policies.",
 
     // Claims
     global_claims: "Global Claims",
@@ -139,6 +157,21 @@ export const translations = {
     claims: "Sinistres",
     support: "Assistance",
     profile: "Profil",
+    admin_panel: "Panneau Admin",
+
+    // Admin Dashboard
+    admin_dashboard: "Tableau de Bord Admin",
+    admin_subtitle: "Analytique de la plateforme et gestion des utilisateurs.",
+    total_users: "Utilisateurs Totaux",
+    total_policies_platform: "Polices Totales",
+    total_claims_platform: "Sinistres Totaux",
+    platform_health: "Santé de la Plateforme",
+    user_management: "Gestion des Utilisateurs",
+    delete_user_prompt: "Êtes-vous sûr de vouloir supprimer définitivement cet utilisateur ? Cette action est irréversible.",
+    delete_user_success: "Utilisateur supprimé avec succès.",
+    policy_distribution: "Répartition des Polices",
+    registered_on: "Inscrit le",
+    policy_count: "Nombre de Polices",
 
     // Dashboard
     welcome_back: "Bon retour",
@@ -201,6 +234,9 @@ export const translations = {
     widowed: "Veuf / Veuve",
     save_profile: "Enregistrer le Profil",
     profile_saved: "Profil Enregistré",
+    delete_account: "Supprimer le compte",
+    delete_account_confirm: "Êtes-vous sûr de vouloir supprimer définitivement votre compte et toutes vos polices ?",
+    delete_account_warning: "Cette action est définitive et supprimera toutes vos polices.",
 
     // Claims
     global_claims: "Sinistres Globaux",

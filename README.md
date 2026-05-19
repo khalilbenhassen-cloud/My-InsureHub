@@ -1,6 +1,6 @@
 # My InsureHub
 
-A full-stack, "Digital Filing Cabinet" web app where users can store, manage, and analyze multiple insurance contracts in a centralized platform.
+A full-stack, "Digital Filing Cabinet" web app where users can store, manage, and analyze multiple insurance contracts in a centralized platform, complete with a dedicated SaaS Administrative Portal.
 
 ### App Screenshots
 | Dashboard | All Policies |
@@ -20,6 +20,16 @@ A full-stack, "Digital Filing Cabinet" web app where users can store, manage, an
 - **Context-Aware AI Chat**: A persistent Chat Assistant scoped strictly by `policy_id`. It physically cannot confuse your Auto policy rules with your Home policy rules.
 - **Modern UI**: A cheerful, professional "Dribbble-style" light theme built with Next.js, featuring a clean Sidebar and TopNav.
 
+## 🏢 NEW: SaaS Admin Portal
+
+InsureHub now features a completely separate, secure Admin Dashboard located at `/admin/dashboard` allowing platform managers to monitor the entire user base.
+
+- **KPI Analytics**: Track total active users, global policy counts, and submitted claims.
+- **User Directory**: View all registered users, their policy/claim counts, and instantly **Suspend** bad actors with a single click.
+- **360° User Inspection**: Click into any user's profile to view their complete private cabinet (all of their uploaded policies and filed claims).
+- **Two-Way Helpdesk**: Users can submit Support Tickets. Admins can view these tickets in the portal and use the interactive Reply feature to send a beautifully formatted response directly to the user's real email inbox.
+- **Zero-Touch Auto-Provisioning**: Admins are managed exclusively through backend `.env` variables to prevent security risks.
+
 ## 🛠 Tech Stack
 
 - **Frontend**: Next.js 15 (App Router) + Tailwind CSS + Lucide React
@@ -28,17 +38,23 @@ A full-stack, "Digital Filing Cabinet" web app where users can store, manage, an
 - **LLM**: Groq API (llama-3.1-8b-instant) — OpenAI-compatible
 - **Embeddings**: sentence-transformers (all-MiniLM-L6-v2) — runs locally
 - **Vector store**: ChromaDB (Persists to local disk `./chroma_db`)
-- **PDF parsing**: pypdf
+- **Email Dispatch**: Native Python SMTP module
 
 ## ⚙️ Environment Variables
 
 Backend needs a `.env` file:
-```
+```env
 GROQ_API_KEY=your_groq_key_here
+SUPPORT_EMAIL=your_business_email@gmail.com
+SUPPORT_EMAIL_PASSWORD=your_app_specific_password
+
+# To create an Admin, add their email and a temporary password here. 
+# They can log in immediately at /admin/login without registering first.
+ADMIN_CREDENTIALS=master@insurehub.com:supersecret123,partner@insurehub.com:welcome2026
 ```
 
 Frontend needs a `.env.local` file:
-```
+```env
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
@@ -51,6 +67,7 @@ insurehub/
 │   ├── database.py (SQLite config)
 │   ├── models.py (SQLAlchemy Schema)
 │   ├── schemas.py (Pydantic Models)
+│   ├── auth.py (JWT Authentication & Admin Security)
 │   ├── .env
 │   ├── requirements.txt
 │   └── services/
@@ -58,8 +75,11 @@ insurehub/
 │       ├── ai_analyzer.py
 │       └── rag_store.py (ChromaDB persistence)
 └── frontend/
-    ├── app/ (Next.js App Router: /dashboard, /policies, /claims)
+    ├── app/ 
+    │   ├── (user_app)/ (Next.js App Router: /dashboard, /policies, /claims)
+    │   └── (admin_app)/ (Secure routes: /admin/login, /admin/dashboard, /admin/tickets)
     ├── components/ (TopNav, Sidebar, UploadDropzone)
+    ├── context/ (AuthContext.tsx)
     └── .env.local
 ```
 
@@ -70,7 +90,8 @@ insurehub/
    - Create an API key
 
 2. **Configure backend**:
-   - Add your Groq API key to `.env`: `GROQ_API_KEY=your_actual_key_here`
+   - Add your Groq API key to `.env`
+   - Configure the `ADMIN_CREDENTIALS` and `SUPPORT_EMAIL` to fully unlock the admin portal.
 
 3. **Start the backend**:
    ```bash
@@ -88,5 +109,6 @@ insurehub/
    ```
 
 5. **Open your browser**:
-   - Frontend: http://localhost:3000
+   - User App: http://localhost:3000
+   - Admin Portal: http://localhost:3000/admin/login
    - Backend API docs: http://localhost:8000/docs

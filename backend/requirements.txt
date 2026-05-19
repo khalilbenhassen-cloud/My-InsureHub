@@ -10,3 +10,5 @@ python-multipart
 python-dotenv
 pydantic
 sqlalchemy
+passlib[bcrypt]
+python-jose[cryptography]

@@ -1,12 +1,27 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, Float, DateTime
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, Float, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from database import Base
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    full_name = Column(String)
+    is_admin = Column(Boolean, default=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    policies = relationship("Policy", back_populates="user", cascade="all, delete-orphan")
+    tickets = relationship("Ticket", back_populates="user", cascade="all, delete-orphan")
 
 class Policy(Base):
     __tablename__ = "policies"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
     company_name = Column(String, index=True)
     policy_type = Column(String, index=True)
     summary = Column(Text)
@@ -17,6 +32,7 @@ class Policy(Base):
     documents = relationship("Document", back_populates="policy", cascade="all, delete-orphan")
     claims = relationship("Claim", back_populates="policy", cascade="all, delete-orphan")
     guarantees = relationship("Guarantee", back_populates="policy", cascade="all, delete-orphan")
+    user = relationship("User", back_populates="policies")
 
 class Guarantee(Base):
     __tablename__ = "guarantees"
@@ -50,3 +66,17 @@ class Claim(Base):
     status = Column(String) # e.g., 'Pending', 'Resolved', 'Denied'
 
     policy = relationship("Policy", back_populates="claims")
+
+class Ticket(Base):
+    __tablename__ = "tickets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    category = Column(String)
+    subject = Column(String)
+    message = Column(Text)
+    admin_response = Column(Text, nullable=True)
+    status = Column(String, default="Open") # Open, Resolved
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", back_populates="tickets")
