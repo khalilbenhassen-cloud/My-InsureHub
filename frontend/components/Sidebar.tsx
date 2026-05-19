@@ -3,18 +3,21 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, ClipboardList, Car, Bell, Inbox, HelpCircle, User } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export function Sidebar() {
   const pathname = usePathname();
 
+  const { t } = useLanguage();
+
   const navItems = [
-    { icon: Home, path: '/dashboard' },
-    { icon: ClipboardList, path: '/policies' },
-    { icon: Car, path: '#' },
-    { icon: Bell, path: '#' },
-    { icon: Inbox, path: '/claims' },
-    { icon: HelpCircle, path: '#' },
-    { icon: User, path: '#' },
+    { icon: Home, path: '/dashboard', label: t('dashboard') },
+    { icon: ClipboardList, path: '/policies', label: t('policies') },
+    { icon: Car, path: '#', label: 'Auto' },
+    { icon: Bell, path: '#', label: 'Notifications' },
+    { icon: Inbox, path: '/claims', label: t('claims') },
+    { icon: HelpCircle, path: '/support', label: t('support') },
+    { icon: User, path: '/profile', label: t('profile') },
   ];
 
   return (
@@ -26,6 +29,7 @@ export function Sidebar() {
           <Link 
             key={index} 
             href={item.path}
+            title={item.label}
             className={`p-3 rounded-xl transition-colors ${
               isActive 
                 ? 'bg-blue-50 text-blue-600' 

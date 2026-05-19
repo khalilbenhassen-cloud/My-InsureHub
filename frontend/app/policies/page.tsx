@@ -2,19 +2,22 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FileText, PlusCircle, CheckCircle2, Trash2 } from 'lucide-react';
+import { FileText, PlusCircle, CheckCircle2, Trash2, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Policy {
   id: number;
   company_name: string;
   policy_type: string;
+  status: string;
   created_at: string;
 }
 
 export default function PoliciesPage() {
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchPolicies();
@@ -45,16 +48,26 @@ export default function PoliciesPage() {
     }
   };
 
+  const handleStatusChange = async (policyId: number, newStatus: string) => {
+    try {
+      await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/policies/${policyId}/status`, { status: newStatus });
+      setPolicies(policies.map(p => p.id === policyId ? { ...p, status: newStatus } : p));
+    } catch (error) {
+      console.error("Failed to update status", error);
+      alert("Failed to update status.");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">All Policies</h1>
-          <p className="text-gray-500 text-sm mt-1">Manage your complete insurance portfolio.</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('all_policies')}</h1>
+          <p className="text-gray-500 text-sm mt-1">{t('policies_subtitle')}</p>
         </div>
         <Link href="/dashboard" className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm">
           <PlusCircle className="h-4 w-4" />
-          Add Policy
+          {t('add_policy')}
         </Link>
       </div>
 
@@ -70,11 +83,11 @@ export default function PoliciesPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Added On</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('company')}</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('type')}</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('added_on')}</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('status')}</th>
+                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('actions')}</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -91,20 +104,34 @@ export default function PoliciesPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 capitalize">{policy.policy_type}</div>
+                    <div className="text-sm text-gray-900 capitalize">{t(policy.policy_type.split('_')[0] as any) || policy.policy_type}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(policy.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                      <CheckCircle2 className="h-3 w-3" /> Active
-                    </span>
+                    <div className="relative inline-block">
+                      <select
+                        value={policy.status || 'Active'}
+                        onChange={(e) => handleStatusChange(policy.id, e.target.value)}
+                        className={`text-xs font-medium pl-2.5 pr-6 py-1 rounded-full border outline-none cursor-pointer appearance-none ${
+                          (policy.status || 'Active') === 'Active' 
+                            ? 'bg-emerald-100 text-emerald-800 border-emerald-200' 
+                            : 'bg-gray-100 text-gray-800 border-gray-200'
+                        }`}
+                      >
+                        <option value="Active">{t('active')}</option>
+                        <option value="Inactive">{t('inactive')}</option>
+                      </select>
+                      <ChevronDown className={`absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 pointer-events-none ${
+                        (policy.status || 'Active') === 'Active' ? 'text-emerald-800' : 'text-gray-800'
+                      }`} />
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end gap-2">
                       <Link href={`/policies/${policy.id}`} className="text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1.5 rounded-md hover:bg-blue-100 transition-colors">
-                        View Details
+                        {t('view_details')}
                       </Link>
                       <button 
                         onClick={() => handleDelete(policy.id)}

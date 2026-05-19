@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import axios from 'axios';
 import { ShieldCheck, FileText, Send, Upload, Plus } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Guarantee {
   name: string;
@@ -36,6 +37,7 @@ interface Policy {
 export default function PolicyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const { id } = resolvedParams;
+  const { t, lang } = useLanguage();
 
   const [policy, setPolicy] = useState<Policy | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -81,7 +83,7 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
       const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/chat`, {
         policy_id: parseInt(id),
         question: userQ,
-        language: 'English'
+        language: lang === 'fr' ? 'French' : 'English'
       });
       setChatHistory(prev => [...prev, { role: 'ai', text: res.data.answer }]);
     } catch (error) {
@@ -124,8 +126,8 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
     }
   };
 
-  if (isLoading) return <div className="p-8 text-center text-gray-500">Loading Policy Cabinet...</div>;
-  if (!policy) return <div className="p-8 text-center text-red-500">Policy not found.</div>;
+  if (isLoading) return <div className="p-8 text-center text-gray-500">{t('policy_cabinet')}</div>;
+  if (!policy) return <div className="p-8 text-center text-red-500">{t('policy_not_found')}</div>;
 
   return (
     <div className="flex flex-col lg:flex-row gap-8">
@@ -139,15 +141,19 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
             <ShieldCheck className="h-10 w-10 text-blue-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{policy.company_name}</h1>
-            <p className="text-gray-500 capitalize">{policy.policy_type.replace('_', ' ')} Policy</p>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {lang === 'fr' ? `${t('insurance')} ${policy.company_name.replace('Insurance', '').trim()}` : `${policy.company_name.replace('Insurance', '').trim()} ${t('insurance')}`}
+            </h1>
+            <p className="text-gray-500 capitalize">
+              {lang === 'fr' ? `${t('policy')} ${t(policy.policy_type.split('_')[0] as any) || policy.policy_type}` : `${t(policy.policy_type.split('_')[0] as any) || policy.policy_type} ${t('policy')}`}
+            </p>
             <p className="mt-3 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-100">{policy.summary}</p>
           </div>
         </div>
 
         {/* Guarantees */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-100 pb-2">Main Guarantees</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-100 pb-2">{t('main_guarantees')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {policy.guarantees.map((g, i) => (
               <div key={i} className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
@@ -160,7 +166,7 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
 
         {/* Documents Manager */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-100 pb-2">Related Documents</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-100 pb-2">{t('related_documents')}</h2>
           <ul className="space-y-2 mb-4">
             {policy.documents.map((d) => (
               <li key={d.id} className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors border border-transparent hover:border-gray-100">
@@ -176,7 +182,7 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
           <form onSubmit={handleUploadDoc} className="flex gap-2 items-center bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300">
             <input type="file" accept=".pdf" onChange={(e) => setFile(e.target.files?.[0] || null)} className="text-sm flex-1" />
             <button type="submit" disabled={!file || isUploadingDoc} className="bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-blue-700 disabled:bg-gray-300 transition-colors flex items-center gap-1">
-              <Upload className="h-4 w-4" /> Add Document
+              <Upload className="h-4 w-4" /> {t('add_document')}
             </button>
           </form>
         </div>
@@ -184,9 +190,9 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
         {/* Claims Log */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-2">
-            <h2 className="text-lg font-semibold text-gray-900">Manual Claims Log</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('manual_claims_log')}</h2>
             <button onClick={() => setShowClaimForm(!showClaimForm)} className="text-blue-600 text-sm font-medium flex items-center gap-1 hover:text-blue-800">
-              <Plus className="h-4 w-4" /> Log Claim
+              <Plus className="h-4 w-4" /> {t('log_claim')}
             </button>
           </div>
 
@@ -196,12 +202,12 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
               <div className="flex gap-3">
                 <input type="number" placeholder="Amount ($)" required value={newClaim.amount || ''} onChange={e => setNewClaim({...newClaim, amount: parseFloat(e.target.value)})} className="p-2 border rounded-md text-sm flex-1" />
                 <select value={newClaim.status} onChange={e => setNewClaim({...newClaim, status: e.target.value})} className="p-2 border rounded-md text-sm">
-                  <option>Pending</option>
-                  <option>Approved</option>
-                  <option>Denied</option>
+                  <option value="Pending">{t('pending')}</option>
+                  <option value="Resolved">{t('resolved')}</option>
+                  <option value="Denied">{t('denied')}</option>
                 </select>
               </div>
-              <button type="submit" className="bg-emerald-600 text-white py-2 rounded-md font-medium text-sm hover:bg-emerald-700">Save Claim</button>
+              <button type="submit" className="bg-emerald-600 text-white py-2 rounded-md font-medium text-sm hover:bg-emerald-700">{t('save_claim')}</button>
             </form>
           )}
 
@@ -213,7 +219,7 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
                 <li key={c.id} className="flex justify-between items-center p-3 border border-gray-100 rounded-lg">
                   <div>
                     <p className="text-sm font-medium text-gray-900">{c.description}</p>
-                    <p className="text-xs text-gray-500">${c.amount.toLocaleString()} • {c.status}</p>
+                    <p className="text-xs text-gray-500">${c.amount.toLocaleString()} • {t(c.status.toLowerCase() as any) || c.status}</p>
                   </div>
                 </li>
               ))}
@@ -227,15 +233,15 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
       <div className="lg:w-96 flex flex-col h-[80vh] sticky top-24 bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="bg-blue-600 p-4 text-white">
           <h2 className="font-semibold flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5" /> Policy Assistant
+            <ShieldCheck className="h-5 w-5" /> {t('policy_assistant')}
           </h2>
-          <p className="text-xs text-blue-100 mt-1">Ask questions about this specific policy and its documents.</p>
+          <p className="text-xs text-blue-100 mt-1">{t('assistant_subtitle')}</p>
         </div>
         
         <div className="flex-1 p-4 overflow-y-auto bg-gray-50 space-y-4">
           {chatHistory.length === 0 ? (
             <div className="text-center text-sm text-gray-400 mt-10">
-              Try asking: "What is my deductible?"
+              {t('try_asking')}
             </div>
           ) : (
             chatHistory.map((msg, i) => (
@@ -249,7 +255,7 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
           {isChatLoading && (
             <div className="flex justify-start">
               <div className="bg-white border border-gray-200 p-3 rounded-2xl rounded-bl-none text-sm text-gray-400 animate-pulse">
-                Thinking...
+                {t('thinking')}
               </div>
             </div>
           )}
@@ -260,7 +266,7 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
             type="text"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Ask about this policy..."
+            placeholder={t('ask_placeholder')}
             className="flex-1 bg-gray-50 border border-gray-200 text-sm rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button type="submit" disabled={isChatLoading || !question.trim()} className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 disabled:bg-gray-300 transition-colors">

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Upload } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface UploadDropzoneProps {
   onFileChange: (file: File) => void;
@@ -10,6 +11,7 @@ interface UploadDropzoneProps {
 export function UploadDropzone({ onFileChange, onLanguageChange, language }: UploadDropzoneProps) {
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const { t } = useLanguage();
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -53,7 +55,7 @@ export function UploadDropzone({ onFileChange, onLanguageChange, language }: Upl
       <div className="space-y-4 flex flex-col items-center">
         <Upload className="h-12 w-12 text-blue-500 mb-2" />
         <p className="text-sm text-gray-600 font-medium">
-          Click to upload or drag and drop a PDF file (max 20MB)
+          {t('upload_instructions')}
         </p>
         {file && (
           <p className="text-sm font-semibold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
@@ -63,7 +65,7 @@ export function UploadDropzone({ onFileChange, onLanguageChange, language }: Upl
         {!file && (
           <button type="button" onClick={() => document.querySelector('input[type="file"]')?.click()}
                   className="px-6 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition-colors shadow-sm">
-            Select PDF
+            {t('select_pdf')}
           </button>
         )}
       </div>

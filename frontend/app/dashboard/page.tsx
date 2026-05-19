@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { UploadDropzone } from '@/components/UploadDropzone';
 import { ShieldCheck, Plus, CheckCircle2 } from 'lucide-react';
+import { DashboardAnalytics } from '@/components/DashboardAnalytics';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Guarantee {
   name: string;
@@ -15,6 +17,7 @@ interface Policy {
   id: number;
   company_name: string;
   policy_type: string;
+  status: string;
   guarantees?: Guarantee[];
 }
 
@@ -22,13 +25,27 @@ export default function DashboardPage() {
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [language, setLanguage] = useState<string>('English');
+  const { t, lang } = useLanguage();
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [userName, setUserName] = useState('User');
   const router = useRouter();
 
   useEffect(() => {
     fetchPolicies();
+    
+    const saved = localStorage.getItem('userProfile');
+    if (saved) {
+      try {
+        const profile = JSON.parse(saved);
+        if (profile.fullName) {
+          const firstName = profile.fullName.split(' ')[0];
+          setUserName(firstName);
+        }
+      } catch (e) {
+        console.error("Failed to parse profile", e);
+      }
+    }
   }, []);
 
   const fetchPolicies = async () => {
@@ -55,7 +72,7 @@ export default function DashboardPage() {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('language', language);
+      formData.append('language', lang === 'fr' ? 'French' : 'English');
 
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -95,31 +112,31 @@ export default function DashboardPage() {
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-[28px] font-bold text-gray-900 tracking-tight">
-            Welcome back, Khalil! 👋
+            {t('welcome_back')}, {userName}! 👋
           </h1>
           <p className="text-[17px] text-gray-600 mt-1">
-            Here's your insurance overview.
+            {t('dashboard_subtitle')}
           </p>
         </div>
         <button 
           onClick={() => setShowUploadModal(!showUploadModal)}
           className="bg-[#0D7AF5] hover:bg-blue-600 text-white px-5 py-2.5 rounded-lg text-[15px] font-medium flex items-center gap-2 transition-colors shadow-sm"
         >
-          <Plus className="h-5 w-5" /> Add New Policy
+          <Plus className="h-5 w-5" /> {t('add_policy')}
         </button>
       </div>
 
       {showUploadModal && (
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8 animate-in fade-in slide-in-from-top-4">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-800">Add New Policy</h2>
+            <h2 className="text-lg font-semibold text-gray-800">{t('add_policy')}</h2>
             <button onClick={() => setShowUploadModal(false)} className="text-gray-400 hover:text-gray-600">✕</button>
           </div>
           <form onSubmit={handleUpload} className="space-y-4">
             <UploadDropzone 
               onFileChange={setFile} 
-              onLanguageChange={setLanguage} 
-              language={language} 
+              onLanguageChange={() => {}} 
+              language={lang === 'fr' ? 'French' : 'English'} 
             />
             <div className="flex justify-end">
               <button
@@ -131,11 +148,16 @@ export default function DashboardPage() {
                     : 'bg-[#0D7AF5] text-white hover:bg-blue-600'
                 }`}
               >
-                {isUploading ? 'Extracting Data...' : 'Analyze & Save to Vault'}
+                {isUploading ? t('extracting') : t('analyze_save')}
               </button>
             </div>
           </form>
         </div>
+      )}
+
+      {/* Analytics Dashboard */}
+      {!isLoading && policies.length > 0 && (
+        <DashboardAnalytics policies={policies} />
       )}
 
       {/* Policies Grid */}
@@ -148,8 +170,8 @@ export default function DashboardPage() {
       ) : policies.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-3xl border border-gray-100 shadow-sm">
           <ShieldCheck className="h-16 w-16 text-gray-200 mx-auto mb-4" />
-          <p className="text-lg font-medium text-gray-900">No policies found</p>
-          <p className="text-gray-500 mt-1">Click "Add New Policy" to upload your first contract.</p>
+          <p className="text-lg font-medium text-gray-900">{t('no_policies')}</p>
+          <p className="text-gray-500 mt-1">{t('no_policies_sub')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -166,11 +188,14 @@ export default function DashboardPage() {
                 <div className={`px-6 py-5 ${topColor}`}>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-xs font-semibold uppercase tracking-wider opacity-80">
-                      {cleanCompanyName} - {shortType} insurance
+                      {cleanCompanyName} - {lang === 'fr' ? `${t('insurance')} ${t(shortType as any) || shortType}` : `${t(shortType as any) || shortType} ${t('insurance')}`}
                     </span>
                   </div>
                   <h3 className="text-[22px] font-bold tracking-tight">
-                    <span className="capitalize">{shortType}</span> Policy: {getEmoji(policy.policy_type)} {cleanCompanyName} <span className="text-emerald-500 font-medium text-lg ml-1">(Active)</span>
+                    <span className="capitalize">{lang === 'fr' ? `${t('policy')} ${t(shortType as any) || shortType}` : `${t(shortType as any) || shortType} ${t('policy')}`}</span>: {getEmoji(policy.policy_type)} {cleanCompanyName} 
+                    <span className={`font-medium text-lg ml-2 ${(policy.status || 'Active') === 'Active' ? 'text-emerald-500' : 'text-gray-500'}`}>
+                      ({t((policy.status || 'Active').toLowerCase() as any)})
+                    </span>
                   </h3>
                 </div>
 
@@ -187,7 +212,7 @@ export default function DashboardPage() {
 
                     {/* Guarantees List */}
                     <div className="flex-1">
-                      <p className="font-semibold text-gray-900 text-[15px] mb-2">Main guarantees</p>
+                      <p className="font-semibold text-gray-900 text-[15px] mb-2">{t('main_guarantees')}</p>
                       <ul className="space-y-2">
                         {guarantees.map((g, idx) => (
                           <li key={idx} className="flex items-start gap-2 text-[14px] text-gray-700 leading-snug">
@@ -196,7 +221,7 @@ export default function DashboardPage() {
                           </li>
                         ))}
                         {guarantees.length === 0 && (
-                          <li className="text-sm text-gray-400 italic">No specific guarantees extracted.</li>
+                          <li className="text-sm text-gray-400 italic">{t('no_guarantees')}</li>
                         )}
                       </ul>
                     </div>
@@ -209,7 +234,7 @@ export default function DashboardPage() {
                     Policy ID: {cleanCompanyName.substring(0,2).toUpperCase()}{policy.id}89321 | Total Premium: TBD
                   </div>
                   <div className="text-[13px] text-gray-600 mb-5 flex items-center gap-1">
-                    Status: <span className="text-emerald-600 font-medium">Active</span> <CheckCircle2 className="h-4 w-4 text-emerald-500 inline" />
+                    {t('status')}: <span className={`${(policy.status || 'Active') === 'Active' ? 'text-emerald-600' : 'text-gray-600'} font-medium`}>{t((policy.status || 'Active').toLowerCase() as any)}</span> {(policy.status || 'Active') === 'Active' && <CheckCircle2 className="h-4 w-4 text-emerald-500 inline" />}
                   </div>
 
                   {/* Button */}
@@ -217,7 +242,7 @@ export default function DashboardPage() {
                     onClick={() => router.push(`/policies/${policy.id}`)}
                     className="w-full mt-auto bg-[#0D7AF5] hover:bg-blue-600 text-white font-medium py-3 rounded-xl transition-colors shadow-sm"
                   >
-                    View Policy
+                    {t('view_policy')}
                   </button>
 
                 </div>

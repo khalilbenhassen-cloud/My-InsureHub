@@ -55,6 +55,11 @@ class PolicyBase(BaseModel):
     company_name: str
     policy_type: str
     summary: str
+    premium_amount: float = 0.0
+    status: str = "Active"
+
+class PolicyStatusUpdate(BaseModel):
+    status: str
 
 class PolicyCreate(PolicyBase):
     guarantees: List[GuaranteeCreate] = []
@@ -68,3 +73,11 @@ class Policy(PolicyBase):
 
     class Config:
         from_attributes = True
+
+# Ticket Request
+class TicketRequest(BaseModel):
+    category: str
+    subject: str
+    message: str
+    user_name: str
+    user_email: str

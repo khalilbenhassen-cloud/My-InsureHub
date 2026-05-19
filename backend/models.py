@@ -10,6 +10,8 @@ class Policy(Base):
     company_name = Column(String, index=True)
     policy_type = Column(String, index=True)
     summary = Column(Text)
+    premium_amount = Column(Float, default=0.0)
+    status = Column(String, default="Active")
     created_at = Column(DateTime, default=datetime.utcnow)
 
     documents = relationship("Document", back_populates="policy", cascade="all, delete-orphan")

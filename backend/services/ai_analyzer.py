@@ -29,6 +29,7 @@ Policy Text:
 Please provide a JSON object with the following fields:
 - policy_type: string (type of insurance, e.g., 'auto', 'home', 'health')
 - summary: string (plain-language summary of the policy)
+- premium_amount: number (extract the exact annual premium/cost in euros. If not found or not explicitly stated in the document, return exactly 0.0)
 - coverages: array of objects, each with 'item' (string) and 'amount' (string or number)
 - exclusions: array of strings (what is not covered)
 - warnings: array of strings (risk warnings or important notes)
@@ -67,6 +68,7 @@ IMPORTANT: Return ONLY valid JSON. Do not wrap in markdown code fences or any ex
         analysis = {
             "policy_type": "unknown",
             "summary": "Failed to parse analysis.",
+            "premium_amount": 0.0,
             "coverages": [],
             "exclusions": [],
             "warnings": ["AI response was not valid JSON."],

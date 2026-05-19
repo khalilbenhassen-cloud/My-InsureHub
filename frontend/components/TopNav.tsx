@@ -2,16 +2,44 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShieldCheck, Bell } from 'lucide-react';
+import { ShieldCheck, Bell, Globe } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export function TopNav() {
   const pathname = usePathname();
+  const { lang, setLang, t } = useLanguage();
+  const [userName, setUserName] = useState('My Profile');
+  const [userPhoto, setUserPhoto] = useState('https://api.dicebear.com/7.x/notionists/svg?seed=Khalil');
+
+  const loadProfileData = () => {
+    const saved = localStorage.getItem('userProfile');
+    if (saved) {
+      try {
+        const profile = JSON.parse(saved);
+        if (profile.fullName) setUserName(profile.fullName);
+        if (profile.photoBase64) {
+          setUserPhoto(profile.photoBase64);
+        } else {
+          setUserPhoto('https://api.dicebear.com/7.x/notionists/svg?seed=Khalil');
+        }
+      } catch (e) {
+        console.error("Failed to parse user profile in TopNav", e);
+      }
+    }
+  };
+
+  useEffect(() => {
+    loadProfileData();
+    window.addEventListener('profileUpdated', loadProfileData);
+    return () => window.removeEventListener('profileUpdated', loadProfileData);
+  }, []);
 
   const navItems = [
-    { name: 'Dashboard', path: '/dashboard' },
-    { name: 'Policies', path: '/policies' },
-    { name: 'Claims', path: '/claims' },
-    { name: 'Support', path: '#' },
+    { name: t('dashboard'), path: '/dashboard' },
+    { name: t('policies'), path: '/policies' },
+    { name: t('claims'), path: '/claims' },
+    { name: t('support'), path: '/support' },
   ];
 
   return (
@@ -58,17 +86,26 @@ export function TopNav() {
 
           {/* Right Profile */}
           <div className="flex items-center gap-4 w-64 justify-end">
+            <select 
+              value={lang}
+              onChange={(e) => setLang(e.target.value as any)}
+              className="text-xs font-semibold text-gray-700 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full transition-colors border border-gray-200 focus:outline-none cursor-pointer appearance-none outline-none"
+              title="Toggle Language"
+            >
+              <option value="en">🇬🇧 EN</option>
+              <option value="fr">🇫🇷 FR</option>
+            </select>
             <button className="text-gray-400 hover:text-gray-600">
               <Bell className="h-5 w-5" />
             </button>
-            <div className="flex items-center gap-3">
+            <Link href="/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <img 
-                src="https://api.dicebear.com/7.x/notionists/svg?seed=Khalil" 
+                src={userPhoto} 
                 alt="Profile" 
-                className="h-8 w-8 rounded-full bg-blue-50 border border-blue-100"
+                className="h-8 w-8 rounded-full bg-blue-50 border border-blue-100 object-cover"
               />
-              <span className="text-sm font-medium text-gray-700 hidden sm:block">Khalil Benhassen</span>
-            </div>
+              <span className="text-sm font-medium text-gray-700 hidden sm:block">{userName}</span>
+            </Link>
           </div>
 
         </div>

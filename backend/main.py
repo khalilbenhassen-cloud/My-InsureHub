@@ -1,5 +1,8 @@
 import os
 import uuid
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -54,6 +57,17 @@ def delete_policy(policy_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Policy deleted successfully"}
 
+@app.patch("/policies/{policy_id}/status", response_model=schemas.Policy)
+def update_policy_status(policy_id: int, status_update: schemas.PolicyStatusUpdate, db: Session = Depends(get_db)):
+    policy = db.query(models.Policy).filter(models.Policy.id == policy_id).first()
+    if not policy:
+        raise HTTPException(status_code=404, detail="Policy not found")
+    
+    policy.status = status_update.status
+    db.commit()
+    db.refresh(policy)
+    return policy
+
 @app.post("/upload")
 async def upload_base_policy(
     file: UploadFile = File(...),
@@ -77,7 +91,8 @@ async def upload_base_policy(
     db_policy = models.Policy(
         company_name=analysis.get("policy_type", "Unknown Policy").capitalize() + " Insurance", 
         policy_type=analysis.get("policy_type", "unknown"),
-        summary=analysis.get("summary", "")
+        summary=analysis.get("summary", ""),
+        premium_amount=float(analysis.get("premium_amount", 0.0))
     )
     db.add(db_policy)
     db.commit()
@@ -145,6 +160,32 @@ def create_claim(policy_id: int, claim: schemas.ClaimCreate, db: Session = Depen
     db.refresh(db_claim)
     return db_claim
 
+@app.put("/claims/{claim_id}", response_model=schemas.Claim)
+def update_claim(claim_id: int, claim_update: schemas.ClaimCreate, db: Session = Depends(get_db)):
+    db_claim = db.query(models.Claim).filter(models.Claim.id == claim_id).first()
+    if not db_claim:
+        raise HTTPException(status_code=404, detail="Claim not found")
+    
+    db_claim.description = claim_update.description
+    db_claim.amount = claim_update.amount
+    db_claim.status = claim_update.status
+    db_claim.date_filed = claim_update.date_filed
+    
+    db.commit()
+    db.refresh(db_claim)
+    return db_claim
+
+@app.delete("/claims/{claim_id}")
+def delete_claim(claim_id: int, db: Session = Depends(get_db)):
+    db_claim = db.query(models.Claim).filter(models.Claim.id == claim_id).first()
+    if not db_claim:
+        raise HTTPException(status_code=404, detail="Claim not found")
+    
+    db.delete(db_claim)
+    db.commit()
+    return {"message": "Claim deleted successfully"}
+
+
 @app.post("/chat")
 async def chat_with_policy_endpoint(request: ChatRequest):
     vectorstore = get_vector_store(request.policy_id)
@@ -153,6 +194,51 @@ async def chat_with_policy_endpoint(request: ChatRequest):
 
     answer = chat_with_policy(vectorstore, request.question, request.language)
     return {"answer": answer}
+
+@app.post("/support/ticket")
+def submit_support_ticket(ticket: schemas.TicketRequest):
+    support_email = os.getenv("SUPPORT_EMAIL")
+    support_password = os.getenv("SUPPORT_EMAIL_PASSWORD")
+    
+    if not support_email or not support_password:
+        raise HTTPException(status_code=500, detail="Support email not configured on the server")
+        
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = support_email
+        msg['To'] = support_email # Send to ourselves
+        msg['Subject'] = f"New Support Ticket: {ticket.subject}"
+        
+        body = f"""
+New support ticket submitted via My InsureHub.
+
+User Details:
+-------------
+Name: {ticket.user_name}
+Email: {ticket.user_email}
+
+Ticket Details:
+---------------
+Category: {ticket.category}
+Subject: {ticket.subject}
+
+Message:
+{ticket.message}
+"""
+        
+        msg.attach(MIMEText(body, 'plain'))
+        
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(support_email, support_password)
+        text = msg.as_string()
+        server.sendmail(support_email, support_email, text)
+        server.quit()
+        
+        return {"message": "Ticket submitted successfully"}
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+        raise HTTPException(status_code=500, detail="Failed to send email")
 
 if __name__ == "__main__":
     import uvicorn
