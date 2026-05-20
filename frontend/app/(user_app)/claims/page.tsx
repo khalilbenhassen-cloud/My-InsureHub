@@ -8,7 +8,7 @@ import { useLanguage } from '@/context/LanguageContext';
 
 interface Claim {
   id: number;
-  policy_id: int;
+  policy_id: number;
   description: string;
   date_filed: string;
   amount: number;
