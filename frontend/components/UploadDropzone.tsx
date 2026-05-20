@@ -63,7 +63,7 @@ export function UploadDropzone({ onFileChange, onLanguageChange, language }: Upl
           </p>
         )}
         {!file && (
-          <button type="button" onClick={() => document.querySelector('input[type="file"]')?.click()}
+          <button type="button" onClick={() => (document.querySelector('input[type="file"]') as HTMLInputElement)?.click()}
                   className="px-6 py-2 bg-brand-orange text-white rounded-md font-medium hover:opacity-90 transition-colors shadow-sm">
             {t('select_pdf')}
           </button>

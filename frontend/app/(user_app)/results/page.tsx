@@ -116,7 +116,7 @@ export default function ResultsPage() {
     setQuestion(q);
     // Focus the textarea
     setTimeout(() => {
-      const textarea = document.querySelector('textarea.chat-input');
+      const textarea = document.querySelector('textarea.chat-input') as HTMLTextAreaElement | null;
       if (textarea) textarea.focus();
     }, 100);
   };
