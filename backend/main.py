@@ -28,7 +28,8 @@ from pydantic import BaseModel
 
 # Initialize Firebase Admin
 try:
-    cred = credentials.Certificate("my-insurehub-4f9bf-firebase-adminsdk-fbsvc-0920235dc4.json")
+    firebase_key_path = os.getenv("FIREBASE_CREDENTIALS_PATH", "my-insurehub-4f9bf-firebase-adminsdk-fbsvc-0920235dc4.json")
+    cred = credentials.Certificate(firebase_key_path)
     if not firebase_admin._apps:
         firebase_admin.initialize_app(cred)
 except Exception as e:
