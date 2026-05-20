@@ -114,8 +114,13 @@ export default function ProfilePage() {
       localStorage.setItem(`profile_completed_${user.email}`, 'true');
     }
     
-    // Show the modal that directs them to the dashboard
-    setShowGetStartedModal(true);
+    // Show the modal that directs them to the dashboard only if no policies
+    if (policies.length === 0) {
+      setShowGetStartedModal(true);
+    } else {
+      setIsSaved(true);
+      setTimeout(() => setIsSaved(false), 3000);
+    }
     
     window.dispatchEvent(new Event('profileUpdated'));
   };
