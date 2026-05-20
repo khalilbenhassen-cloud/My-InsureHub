@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import axios from 'axios';
 import { AnalysisCard } from '@/components/AnalysisCard';
 
-export default function ResultsPage() {
+function ResultsContent() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -268,5 +268,13 @@ export default function ResultsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ResultsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><h2 className="text-xl font-bold text-gray-300">Loading...</h2></div>}>
+      <ResultsContent />
+    </Suspense>
   );
 }
