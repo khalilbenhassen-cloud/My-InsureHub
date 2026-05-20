@@ -3,6 +3,22 @@ from dotenv import load_dotenv
 load_dotenv()
 import uuid
 import smtplib
+import requests
+
+def send_email_via_gas(to_email: str, subject: str, html_content: str = None, text_content: str = None):
+    gas_url = "https://script.google.com/macros/s/AKfycbwr0Ga3XCiGpR1P9UGx19e4U6Ck3aHHSyEk38BoLhIx1g-G2dLysmny6mI7nOQjP3dQ/exec"
+    payload = {
+        "token": "insurehub-secret-token-123",
+        "to": to_email,
+        "subject": subject,
+        "htmlBody": html_content if html_content else (text_content.replace('\n', '<br>') if text_content else "")
+    }
+    try:
+        response = requests.post(gas_url, json=payload, timeout=15)
+        print("GAS response:", response.text)
+    except Exception as e:
+        print(f"Failed to send email via GAS: {e}")
+
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends, status
@@ -235,13 +251,7 @@ def firebase_login(request: FirebaseTokenRequest, db: Session = Depends(get_db))
                     """
                     
                     part = MIMEText(html_body, 'html')
-                    msg.attach(part)
-                    
-                    server = smtplib.SMTP('smtp.gmail.com', 587, timeout=10)
-                    server.starttls()
-                    server.login(support_email, support_password)
-                    server.sendmail(support_email, user.email, msg.as_string())
-                    server.quit()
+                    send_email_via_gas(user.email, msg['Subject'], html_content=html_body)
                 except Exception as e:
                     print(f"Failed to send welcome email: {e}")
             
@@ -330,13 +340,7 @@ def firebase_register(request: FirebaseRegisterRequest, db: Session = Depends(ge
                 """
                 
                 part = MIMEText(html_body, 'html')
-                msg.attach(part)
-                
-                server = smtplib.SMTP('smtp.gmail.com', 587, timeout=10)
-                server.starttls()
-                server.login(support_email, support_password)
-                server.sendmail(support_email, user.email, msg.as_string())
-                server.quit()
+                send_email_via_gas(user.email, msg['Subject'], html_content=html_body)
             except Exception as e:
                 print(f"Failed to send welcome email: {e}")
         
@@ -523,13 +527,7 @@ Regarding your recent support ticket: "{ticket.subject}"
 Best regards,
 My InsureHub Support Team
 """
-            msg.attach(MIMEText(body, 'plain'))
-            
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.starttls()
-            server.login(support_email, support_password)
-            server.sendmail(support_email, user.email, msg.as_string())
-            server.quit()
+            send_email_via_gas(user.email, msg['Subject'], text_content=body)
         except Exception as e:
             print(f"Failed to send email reply: {e}")
             # We don't raise here, we still want to save the response
@@ -582,13 +580,7 @@ def delete_user(db: Session = Depends(get_db), current_user: models.User = Depen
               </body>
             </html>
             """
-            msg.attach(MIMEText(html_body, 'html'))
-
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.starttls()
-            server.login(support_email, support_password)
-            server.sendmail(support_email, user_email, msg.as_string())
-            server.quit()
+            send_email_via_gas(user_email, msg['Subject'], html_content=html_body)
         except Exception as e:
             print(f"Failed to send account deletion email: {e}")
 
@@ -831,14 +823,7 @@ Message:
 {ticket.message}
 """
         
-        msg.attach(MIMEText(body, 'plain'))
-        
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(support_email, support_password)
-        text = msg.as_string()
-        server.sendmail(support_email, support_email, text)
-        server.quit()
+        send_email_via_gas(support_email, msg['Subject'], text_content=body)
         
         return {"message": "Ticket submitted successfully"}
     except Exception as e:
@@ -885,13 +870,7 @@ This link will expire in 15 minutes.
 Best regards,
 My InsureHub Support Team
 """
-        msg.attach(MIMEText(body, 'plain'))
-        
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(support_email, support_password)
-        server.sendmail(support_email, user.email, msg.as_string())
-        server.quit()
+        send_email_via_gas(user.email, msg['Subject'], text_content=body)
         
         return {"message": "If that email is registered, a reset link has been sent."}
     except Exception as e:
