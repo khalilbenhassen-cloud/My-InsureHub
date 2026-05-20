@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, notFound } from 'next/navigation';
 import { LayoutDashboard, Users, Ticket, LogOut, ShieldAlert } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect } from 'react';
@@ -14,6 +14,11 @@ export default function AdminAppLayout({
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
+
+  // Disable admin portal in production unless explicitly enabled via env var
+  if (process.env.NEXT_PUBLIC_ENABLE_ADMIN !== 'true') {
+    notFound();
+  }
 
   useEffect(() => {
     // If not admin, redirect to user dashboard
