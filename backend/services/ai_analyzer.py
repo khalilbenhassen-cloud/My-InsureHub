@@ -27,6 +27,11 @@ Policy Text:
 {truncated_text}
 
 Please provide a JSON object with the following fields:
+- company_name: string (name of the insurance company issuing the policy)
+- company_domain: string (the official website domain of the insurance company, e.g., 'allianz.fr', 'axa.com'. If unknown, guess it based on the company name)
+- policy_number: string (the official policy number or contract number, usually found near the top, e.g. "Contrat N°" or "Police numéro". If none found, return null)
+- vehicle_marque: string (if it's an auto policy, extract the vehicle make/marque and model, e.g., 'Peugeot 3008'. If not an auto policy or not found, return null)
+- vehicle_matricule: string (if it's an auto policy, extract the license plate/immatriculation, e.g., 'XY-789-ZT'. If not an auto policy or not found, return null)
 - policy_type: string (type of insurance, e.g., 'auto', 'home', 'health')
 - summary: string (plain-language summary of the policy)
 - premium_amount: number (extract the exact annual premium/cost in euros. If not found or not explicitly stated in the document, return exactly 0.0)
@@ -66,6 +71,11 @@ IMPORTANT: Return ONLY valid JSON. Do not wrap in markdown code fences or any ex
     except json.JSONDecodeError:
         # Fallback: if JSON parsing fails, return a default structure
         analysis = {
+            "company_name": "Unknown Company",
+            "company_domain": None,
+            "policy_number": None,
+            "vehicle_marque": None,
+            "vehicle_matricule": None,
             "policy_type": "unknown",
             "summary": "Failed to parse analysis.",
             "premium_amount": 0.0,

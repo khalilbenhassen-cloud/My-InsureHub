@@ -9,6 +9,7 @@ import { useLanguage } from '@/context/LanguageContext';
 interface Policy {
   id: number;
   company_name: string;
+  company_domain?: string;
   policy_type: string;
   status: string;
   created_at: string;
@@ -17,7 +18,9 @@ interface Policy {
 export default function PoliciesPage() {
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { t } = useLanguage();
+  const [filterCompany, setFilterCompany] = useState('');
+  const [filterType, setFilterType] = useState('');
+  const { t, lang } = useLanguage();
 
   useEffect(() => {
     fetchPolicies();
@@ -71,6 +74,26 @@ export default function PoliciesPage() {
         </Link>
       </div>
 
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row gap-4">
+        <input 
+          type="text" 
+          placeholder={t('search_company') || "Search company..."} 
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm flex-1 outline-none focus:border-brand-navy/50"
+          value={filterCompany}
+          onChange={e => setFilterCompany(e.target.value)}
+        />
+        <select 
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm flex-1 outline-none focus:border-brand-navy/50"
+          value={filterType}
+          onChange={e => setFilterType(e.target.value)}
+        >
+          <option value="">{lang === 'fr' ? 'Tous les types' : 'All types'}</option>
+          {Array.from(new Set(policies.map(p => p.policy_type))).map(type => (
+            <option key={type} value={type}>{t(type.split('_')[0] as any) || type}</option>
+          ))}
+        </select>
+      </div>
+
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         {isLoading ? (
           <div className="p-8 text-center text-gray-400">Loading portfolio...</div>
@@ -91,12 +114,28 @@ export default function PoliciesPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {policies.map((policy) => (
+              {policies.filter(p => (
+                (filterCompany === '' || p.company_name.toLowerCase().includes(filterCompany.toLowerCase())) &&
+                (filterType === '' || p.policy_type === filterType)
+              )).map((policy) => (
                 <tr key={policy.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10 bg-brand-navy/10 rounded-lg flex items-center justify-center">
-                        <FileText className="h-5 w-5 text-brand-navy" />
+                      <div className="flex-shrink-0 h-10 w-10 bg-brand-navy/10 rounded-lg flex items-center justify-center relative overflow-hidden">
+                        {policy.company_domain && (
+                          <img 
+                            src={`https://www.google.com/s2/favicons?domain=${policy.company_domain}&sz=64`} 
+                            alt={policy.company_name} 
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              if (e.currentTarget.nextElementSibling) {
+                                (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'block';
+                              }
+                            }}
+                            className="w-full h-full object-contain absolute inset-0 p-1"
+                          />
+                        )}
+                        <FileText className="h-5 w-5 text-brand-navy absolute" style={{ display: policy.company_domain ? 'none' : 'block' }} />
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">{policy.company_name}</div>

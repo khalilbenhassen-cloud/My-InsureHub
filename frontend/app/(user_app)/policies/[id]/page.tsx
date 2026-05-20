@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import axios from 'axios';
-import { ShieldCheck, FileText, Send, Upload, Plus } from 'lucide-react';
+import { ShieldCheck, FileText, Send, Upload, Plus, Trash2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 interface Guarantee {
@@ -27,6 +27,7 @@ interface Claim {
 interface Policy {
   id: number;
   company_name: string;
+  company_domain?: string;
   policy_type: string;
   summary: string;
   guarantees: Guarantee[];
@@ -126,6 +127,28 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
     }
   };
 
+  const handleDeleteDocument = async (docId: number, filename: string) => {
+    if (window.confirm(t('delete_document_confirm', { filename }))) {
+      try {
+        await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/documents/${docId}`);
+        fetchPolicy();
+      } catch (err) {
+        alert("Failed to delete document.");
+      }
+    }
+  };
+
+  const handleDeleteClaim = async (claimId: number, description: string) => {
+    if (window.confirm(t('delete_claim_confirm', { description }))) {
+      try {
+        await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/claims/${claimId}`);
+        fetchPolicy();
+      } catch (err) {
+        alert("Failed to delete claim.");
+      }
+    }
+  };
+
   if (isLoading) return <div className="p-8 text-center text-gray-500">{t('policy_cabinet')}</div>;
   if (!policy) return <div className="p-8 text-center text-red-500">{t('policy_not_found')}</div>;
 
@@ -137,8 +160,21 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
         
         {/* Header */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-start gap-4">
-          <div className="p-3 bg-blue-50 rounded-xl">
-            <ShieldCheck className="h-10 w-10 text-blue-600" />
+          <div className="bg-blue-50 rounded-xl flex-shrink-0 flex items-center justify-center relative overflow-hidden" style={{ width: '64px', height: '64px' }}>
+            {policy.company_domain && (
+              <img 
+                src={`https://www.google.com/s2/favicons?domain=${policy.company_domain}&sz=128`} 
+                alt={policy.company_name} 
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  if (e.currentTarget.nextElementSibling) {
+                    (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'block';
+                  }
+                }}
+                className="w-full h-full object-contain absolute inset-0 p-1"
+              />
+            )}
+            <ShieldCheck className="h-10 w-10 text-blue-600 absolute" style={{ display: policy.company_domain ? 'none' : 'block' }} />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
@@ -175,6 +211,13 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
                   <p className="text-sm font-medium text-gray-900">{d.filename}</p>
                   <p className="text-xs text-gray-500">{d.doc_type}</p>
                 </div>
+                <button 
+                  onClick={() => handleDeleteDocument(d.id, d.filename)}
+                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                  title="Delete Document"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
               </li>
             ))}
           </ul>
@@ -221,6 +264,13 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
                     <p className="text-sm font-medium text-gray-900">{c.description}</p>
                     <p className="text-xs text-gray-500">${c.amount.toLocaleString()} • {t(c.status.toLowerCase() as any) || c.status}</p>
                   </div>
+                  <button 
+                    onClick={() => handleDeleteClaim(c.id, c.description)}
+                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                    title="Delete Claim"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </li>
               ))}
             </ul>

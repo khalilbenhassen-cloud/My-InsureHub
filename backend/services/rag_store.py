@@ -26,7 +26,7 @@ def get_vector_store(policy_id: int) -> Chroma:
         collection_name=collection_name
     )
 
-def build_vector_store(text: str, policy_id: int) -> Chroma:
+def build_vector_store(text: str, policy_id: int, filename: str = "Base Contract.pdf") -> Chroma:
     """
     Build a persistent vector store from the base policy text.
     """
@@ -36,9 +36,11 @@ def build_vector_store(text: str, policy_id: int) -> Chroma:
         length_function=len
     )
     chunks = text_splitter.split_text(text)
+    metadatas = [{"source": filename} for _ in chunks]
 
     vectorstore = Chroma.from_texts(
         texts=chunks,
+        metadatas=metadatas,
         embedding=embeddings,
         collection_name=f"policy_{policy_id}",
         persist_directory=PERSIST_DIRECTORY
@@ -51,7 +53,7 @@ def build_vector_store(text: str, policy_id: int) -> Chroma:
 
     return vectorstore
 
-def add_to_vector_store(text: str, policy_id: int) -> Chroma:
+def add_to_vector_store(text: str, policy_id: int, filename: str) -> Chroma:
     """
     Add supplemental document text to an existing policy's vector store.
     """
@@ -63,8 +65,9 @@ def add_to_vector_store(text: str, policy_id: int) -> Chroma:
         length_function=len
     )
     chunks = text_splitter.split_text(text)
+    metadatas = [{"source": filename} for _ in chunks]
     
-    vectorstore.add_texts(texts=chunks)
+    vectorstore.add_texts(texts=chunks, metadatas=metadatas)
     
     if hasattr(vectorstore, 'persist'):
         vectorstore.persist()
@@ -75,15 +78,22 @@ def chat_with_policy(vectorstore: Chroma, question: str, language: str) -> str:
     """
     Chat with the policy using RAG.
     """
-    docs = vectorstore.similarity_search(question, k=3)
-    context = "\n\n".join([doc.page_content for doc in docs])
+    docs = vectorstore.similarity_search(question, k=6)
+    
+    context_parts = []
+    for doc in docs:
+        source = doc.metadata.get("source", "Unknown Document")
+        context_parts.append(f"--- From: {source} ---\n{doc.page_content}")
+        
+    context = "\n\n".join(context_parts)
 
     prompt = f"""
-You are an expert insurance analyst. Answer the user's question about their insurance policy based on the provided context.
-The user's language is {language}. Respond in that language.
+    You are an expert insurance analyst. Answer the user's question about their insurance policy based on the provided context.
+    The user's language is {language}. Respond in that language.
+    When answering, if appropriate, mention which document (source) the information came from.
 
-Context from the policy:
-{context}
+    Context from the policy and documents:
+    {context}
 
 Question: {question}
 

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { User, Home, Car, AlertTriangle, CheckCircle2, Heart, ShieldAlert, Save, Camera, Trash2 } from 'lucide-react';
+import { GetStartedModal } from '@/components/GetStartedModal';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 
@@ -27,6 +28,7 @@ interface UserProfile {
 export default function ProfilePage() {
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [isSaved, setIsSaved] = useState(false);
+  const [showGetStartedModal, setShowGetStartedModal] = useState(false);
   const [profile, setProfile] = useState<UserProfile>({
     fullName: '',
     email: '',
@@ -38,7 +40,7 @@ export default function ProfilePage() {
     ownsVehicle: '',
   });
   const { t } = useLanguage();
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
 
   // Load from local storage on mount
   useEffect(() => {
@@ -53,10 +55,11 @@ export default function ProfilePage() {
       }
     }
     
-    // Always override with DB user if available
+    // Only override with DB user if not present in saved profile
     if (user) {
-      loadedProfile.fullName = user.full_name;
-      loadedProfile.email = user.email;
+      if (!loadedProfile.fullName) loadedProfile.fullName = user.full_name;
+      if (!loadedProfile.email) loadedProfile.email = user.email;
+      if (!loadedProfile.dob && user.birth_date) loadedProfile.dob = user.birth_date;
     }
     
     setProfile(loadedProfile);
@@ -94,14 +97,27 @@ export default function ProfilePage() {
     setIsSaved(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (user) {
+    if (user && user.email) {
+      try {
+        const res = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/users/me`, {
+          full_name: profile.fullName,
+          email: profile.email
+        });
+        updateUser(res.data);
+      } catch (error) {
+        console.error("Failed to update user in backend", error);
+      }
+
       localStorage.setItem(`userProfile_${user.email}`, JSON.stringify(profile));
+      localStorage.setItem(`profile_completed_${user.email}`, 'true');
     }
-    setIsSaved(true);
+    
+    // Show the modal that directs them to the dashboard
+    setShowGetStartedModal(true);
+    
     window.dispatchEvent(new Event('profileUpdated'));
-    setTimeout(() => setIsSaved(false), 3000);
   };
 
   const handleDeleteAccount = async () => {
@@ -110,6 +126,8 @@ export default function ProfilePage() {
         await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/users/me`);
         if (user) {
           localStorage.removeItem(`userProfile_${user.email}`);
+          localStorage.removeItem(`has_seen_onboarding_${user.email}`);
+          localStorage.removeItem(`profile_completed_${user.email}`);
         }
         logout();
       } catch (error) {
@@ -139,6 +157,10 @@ export default function ProfilePage() {
   return (
     <div className="space-y-8 max-w-4xl mx-auto pb-10">
       
+      {showGetStartedModal && (
+        <GetStartedModal onClose={() => setShowGetStartedModal(false)} />
+      )}
+
       {/* Header */}
       <div>
         <h1 className="text-[28px] font-bold text-gray-900 tracking-tight flex items-center gap-3">
@@ -274,9 +296,8 @@ export default function ProfilePage() {
 
         {/* Footer Actions */}
         <div className="p-6 bg-white flex justify-end items-center gap-4">
-          {isSaved && <span className="text-emerald-600 font-medium flex items-center gap-1 animate-in fade-in"><CheckCircle2 className="h-5 w-5"/> {t('profile_saved')}</span>}
-          <button type="submit" className="bg-[#0D7AF5] hover:bg-blue-600 text-white px-8 py-3 rounded-xl font-medium flex items-center gap-2 transition-colors shadow-sm">
-            <Save className="h-5 w-5" /> {t('save_profile')}
+          <button type="submit" className={`px-8 py-3 rounded-xl font-medium flex items-center gap-2 transition-colors shadow-sm text-white ${isSaved ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-[#0D7AF5] hover:bg-blue-600'}`}>
+            {isSaved ? <><CheckCircle2 className="h-5 w-5" /> {t('saved') || 'Saved!'}</> : <><Save className="h-5 w-5" /> {t('save_profile')}</>}
           </button>
         </div>
 

@@ -43,8 +43,8 @@ export default function AdminAppLayout({
       {/* Light Sidebar */}
       <aside className="w-64 border-r border-gray-200 bg-white flex flex-col">
         <div className="h-16 flex items-center px-6 border-b border-gray-200">
-          <ShieldAlert className="h-6 w-6 text-indigo-600 mr-3" />
-          <span className="text-gray-900 font-bold tracking-wide">InsureHub Admin</span>
+          <img src="/logo.png" alt="InsureHub Logo" className="h-8 w-auto object-contain mix-blend-multiply mr-3" />
+          <span className="text-brand-navy font-bold tracking-wide">InsureHub Admin</span>
         </div>
         
         <div className="flex-1 py-6 px-4 space-y-1">
@@ -55,8 +55,8 @@ export default function AdminAppLayout({
               <Link 
                 key={item.path} 
                 href={item.path}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive ? 'bg-indigo-50 text-indigo-700' : 'hover:bg-gray-50 hover:text-gray-900 text-gray-600'
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                  isActive ? 'bg-brand-orange/10 text-brand-orange' : 'hover:bg-gray-50 hover:text-gray-900 text-gray-600'
                 }`}
               >
                 <Icon className="h-5 w-5" />
@@ -68,7 +68,7 @@ export default function AdminAppLayout({
 
         <div className="p-4 border-t border-gray-200">
           <div className="flex items-center gap-3 mb-4 px-2">
-            <div className="h-8 w-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
+            <div className="h-8 w-8 rounded-full bg-brand-orange/10 text-brand-orange flex items-center justify-center font-bold">
               {user?.full_name?.charAt(0) || 'A'}
             </div>
             <div className="flex-1 min-w-0">
@@ -78,7 +78,7 @@ export default function AdminAppLayout({
           </div>
           <button 
             onClick={logout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-medium transition-colors"
           >
             <LogOut className="h-4 w-4" /> Sign Out
           </button>

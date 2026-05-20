@@ -64,16 +64,16 @@ export default function AdminTicketsPage() {
     <div className="space-y-8 animate-in fade-in">
       <div>
         <h1 className="text-3xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
-          <Ticket className="h-8 w-8 text-indigo-600" /> Support Inbox
+          <Ticket className="h-8 w-8 text-brand-orange" /> Support Inbox
         </h1>
         <p className="text-gray-500 mt-1">Review and resolve issues submitted by users.</p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
           <h2 className="text-lg font-bold text-gray-900">All Tickets</h2>
           <div className="flex gap-2">
-            <span className="px-3 py-1 bg-white text-gray-600 rounded-lg text-sm font-medium border border-gray-200">
+            <span className="px-3 py-1 bg-white text-gray-600 rounded-xl text-sm font-medium border border-gray-200">
               {tickets.filter(t => t.status === 'Open').length} Open
             </span>
           </div>
@@ -81,7 +81,7 @@ export default function AdminTicketsPage() {
 
         {isLoading ? (
           <div className="flex justify-center p-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-orange"></div>
           </div>
         ) : tickets.length === 0 ? (
           <div className="p-12 text-center text-gray-500">No support tickets found.</div>
@@ -107,12 +107,12 @@ export default function AdminTicketsPage() {
                     </div>
                     
                     <h3 className="text-lg font-bold text-gray-900 mb-1">[{ticket.category}] {ticket.subject}</h3>
-                    <p className="text-gray-600 text-sm whitespace-pre-wrap mt-2 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                    <p className="text-gray-600 text-sm whitespace-pre-wrap mt-2 p-4 bg-gray-50 rounded-xl border border-gray-100">
                       {ticket.message}
                     </p>
                     
                     {ticket.status === 'Resolved' && ticket.admin_response && (
-                      <div className="mt-4 p-4 bg-indigo-50/50 rounded-lg border border-indigo-100">
+                      <div className="mt-4 p-4 bg-brand-orange/10/50 rounded-xl border border-brand-orange/20">
                         <p className="text-xs font-bold text-indigo-800 uppercase tracking-wider mb-2">Admin Response</p>
                         <p className="text-indigo-900 text-sm whitespace-pre-wrap">{ticket.admin_response}</p>
                       </div>
@@ -125,7 +125,7 @@ export default function AdminTicketsPage() {
                           value={replyText}
                           onChange={(e) => setReplyText(e.target.value)}
                           placeholder="Type your professional response here. It will be emailed directly to the user..."
-                          className="w-full p-3 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                          className="w-full p-3 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent transition-all"
                         />
                         <div className="flex justify-end gap-2">
                           <button 
@@ -137,7 +137,7 @@ export default function AdminTicketsPage() {
                           <button 
                             onClick={() => handleReply(ticket.id)}
                             disabled={isSending || !replyText.trim()}
-                            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 bg-brand-orange hover:bg-brand-orange disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-sm font-medium transition-colors"
                           >
                             {isSending ? (
                               <div className="h-4 w-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
@@ -154,7 +154,7 @@ export default function AdminTicketsPage() {
                   {ticket.status === 'Open' && expandedTicketId !== ticket.id && (
                     <button 
                       onClick={() => { setExpandedTicketId(ticket.id); setReplyText(''); }}
-                      className="shrink-0 flex items-center gap-2 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-sm font-medium transition-colors"
+                      className="shrink-0 flex items-center gap-2 px-4 py-2 bg-brand-orange/10 hover:bg-brand-orange/20 text-brand-orange border border-indigo-200 rounded-xl text-sm font-medium transition-colors"
                     >
                       Reply to Ticket
                     </button>

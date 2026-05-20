@@ -50,11 +50,9 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="w-full max-w-md bg-white p-8 rounded-2xl border border-gray-200 shadow-xl animate-in zoom-in-95 duration-300">
+    <div className="w-full max-w-md bg-white p-8 rounded-3xl border border-gray-200 shadow-xl animate-in zoom-in-95 duration-300">
       <div className="flex flex-col items-center mb-8">
-        <div className="h-16 w-16 bg-indigo-50 rounded-full flex items-center justify-center mb-4 border border-indigo-100">
-          <ShieldAlert className="h-8 w-8 text-indigo-600" />
-        </div>
+        <img src="/logo.png" alt="InsureHub Logo" className="h-16 w-auto object-contain mix-blend-multiply mx-auto mb-4" />
         <h1 className="text-2xl font-bold text-gray-900">System Admin Portal</h1>
         <p className="text-sm text-gray-500 mt-2">Restricted access area.</p>
       </div>
@@ -73,7 +71,7 @@ export default function AdminLoginPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 text-gray-900 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 text-gray-900 rounded-xl focus:outline-none focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/20 transition-colors"
             placeholder="admin@insurehub.com"
           />
         </div>
@@ -87,7 +85,7 @@ export default function AdminLoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 text-gray-900 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 text-gray-900 rounded-xl focus:outline-none focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/20 transition-colors"
               placeholder="••••••••"
             />
           </div>
@@ -96,7 +94,7 @@ export default function AdminLoginPage() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4 shadow-lg shadow-indigo-500/20"
+          className="w-full py-3 px-4 bg-brand-orange hover:opacity-90 text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4 shadow-sm"
         >
           {isLoading ? 'Authenticating...' : 'Authorize Access'}
         </button>

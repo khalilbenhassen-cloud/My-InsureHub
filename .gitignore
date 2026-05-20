@@ -19,3 +19,15 @@ backend/chroma_db/
 # OS Files
 .DS_Store
 Thumbs.db
+
+# Secrets & Firebase
+*.json
+!frontend/package.json
+!frontend/package-lock.json
+!frontend/tsconfig.json
+
+# Databases
+*.db
+
+# Logs
+*.log

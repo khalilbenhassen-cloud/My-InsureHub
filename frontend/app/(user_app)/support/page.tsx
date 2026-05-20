@@ -1,9 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { HelpCircle, ChevronDown, ChevronUp, Send, CheckCircle2, MessageSquare, BookOpen, AlertCircle } from 'lucide-react';
+import { HelpCircle, ChevronDown, ChevronUp, Send, CheckCircle2, MessageSquare, BookOpen, AlertCircle, Clock, CheckCircle } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
+
+interface SupportTicket {
+  id: number;
+  category: string;
+  subject: string;
+  message: string;
+  status: string;
+  admin_response: string | null;
+  created_at: string;
+}
 
 const getFaqs = (t: any) => [
   {
@@ -29,9 +40,33 @@ export default function SupportPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const { t } = useLanguage();
+  const { token } = useAuth();
 
   // Form state
   const [ticket, setTicket] = useState({ category: 'General Inquiry', subject: '', message: '' });
+
+  // Tickets state
+  const [tickets, setTickets] = useState<SupportTicket[]>([]);
+  const [isLoadingTickets, setIsLoadingTickets] = useState(true);
+
+  useEffect(() => {
+    if (token) {
+      fetchTickets();
+    }
+  }, [token]);
+
+  const fetchTickets = async () => {
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/tickets`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setTickets(res.data);
+    } catch (error) {
+      console.error("Failed to fetch tickets", error);
+    } finally {
+      setIsLoadingTickets(false);
+    }
+  };
 
   const handleTicketSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,6 +82,7 @@ export default function SupportPage() {
       });
       setIsSuccess(true);
       setTicket({ category: 'General Inquiry', subject: '', message: '' });
+      fetchTickets();
       setTimeout(() => setIsSuccess(false), 4000);
     } catch (err) {
       console.error("Failed to submit ticket", err);
@@ -186,6 +222,51 @@ export default function SupportPage() {
                   )}
                 </button>
               </form>
+            )}
+          </div>
+          
+          {/* My Tickets Section */}
+          <div className="mt-8 bg-white rounded-2xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] border border-gray-100 p-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">{t('my_tickets')}</h2>
+            
+            {isLoadingTickets ? (
+              <div className="flex justify-center py-8">
+                <div className="w-8 h-8 border-4 border-blue-200 border-t-[#0D7AF5] rounded-full animate-spin"></div>
+              </div>
+            ) : tickets.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <MessageSquare className="h-10 w-10 mx-auto text-gray-300 mb-3" />
+                <p>{t('no_tickets')}</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {tickets.map((tkt) => (
+                  <div key={tkt.id} className="border border-gray-100 rounded-xl p-5 bg-gray-50/30">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-semibold text-gray-900">{tkt.subject}</h3>
+                      {tkt.status === 'Resolved' ? (
+                        <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-md text-xs font-medium">
+                          <CheckCircle className="w-3.5 h-3.5" /> {t('status_resolved')}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-700 px-2.5 py-1 rounded-md text-xs font-medium">
+                          <Clock className="w-3.5 h-3.5" /> {t('status_open')}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4">{tkt.message}</p>
+                    
+                    {tkt.admin_response && (
+                      <div className="bg-white border border-blue-100 rounded-lg p-4 relative mt-2">
+                        <div className="absolute -top-3 left-4 bg-blue-50 text-[#0D7AF5] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded border border-blue-100">
+                          {t('admin_response')}
+                        </div>
+                        <p className="text-sm text-gray-700 whitespace-pre-wrap mt-1">{tkt.admin_response}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>

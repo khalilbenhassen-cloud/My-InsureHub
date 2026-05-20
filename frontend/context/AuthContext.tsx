@@ -8,6 +8,7 @@ interface User {
   id: number;
   email: string;
   full_name: string;
+  birth_date?: string;
   is_admin: boolean;
 }
 
@@ -16,6 +17,7 @@ interface AuthContextType {
   token: string | null;
   login: (token: string, user: User) => void;
   logout: () => void;
+  updateUser: (user: User) => void;
   isLoading: boolean;
 }
 
@@ -43,7 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .finally(() => setIsLoading(false));
     } else {
       setIsLoading(false);
-      if (pathname !== '/' && pathname !== '/login' && pathname !== '/register' && pathname !== '/admin/login') {
+      if (pathname !== '/' && pathname !== '/login' && pathname !== '/register' && pathname !== '/admin/login' && pathname !== '/forgot-password' && pathname !== '/reset-password' && pathname !== '/complete-profile') {
          router.push('/login');
       }
     }
@@ -68,7 +70,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(newUser);
     localStorage.setItem('token', newToken);
     axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-    router.push('/dashboard');
+    
+    if (!newUser.birth_date && !newUser.is_admin) {
+      router.push('/complete-profile');
+    } else {
+      router.push('/dashboard');
+    }
   };
 
     const logout = () => {
@@ -81,12 +88,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (pathname && pathname.startsWith('/admin')) {
       router.push('/admin/login');
     } else {
-      router.push('/login');
+      router.push('/');
     }
   };
 
+  const updateUser = (newUser: User) => {
+    setUser(newUser);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, token, login, logout, updateUser, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

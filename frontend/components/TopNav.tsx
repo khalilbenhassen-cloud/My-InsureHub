@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ShieldCheck, Bell, Globe, LogOut } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ShieldCheck, Bell, Globe, LogOut, CheckCheck } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
+import axios from 'axios';
 
 export function TopNav() {
   const pathname = usePathname();
@@ -13,6 +14,60 @@ export function TopNav() {
   const { lang, setLang, t } = useLanguage();
   const { user, logout } = useAuth();
   const [userPhoto, setUserPhoto] = useState('https://api.dicebear.com/7.x/notionists/svg?seed=Khalil');
+
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const fetchNotifications = async () => {
+    if (!user) return;
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notifications`);
+      setNotifications(res.data);
+    } catch (e) {
+      console.error("Failed to fetch notifications", e);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleReadNotification = async (notificationId: number, link?: string) => {
+    try {
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/notifications/${notificationId}/read`);
+      setNotifications(prev => prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n));
+      setIsDropdownOpen(false);
+      if (link) {
+        router.push(link);
+      }
+    } catch (e) {
+      console.error("Failed to mark as read", e);
+    }
+  };
+
+  const handleReadAll = async () => {
+    try {
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/notifications/read-all`);
+      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+    } catch (e) {
+      console.error("Failed to mark all as read", e);
+    }
+  };
+
+  const unreadCount = notifications.filter(n => !n.is_read).length;
 
 
   const loadProfileData = () => {
@@ -96,9 +151,68 @@ export function TopNav() {
               <option value="en">🇬🇧 EN</option>
               <option value="fr">🇫🇷 FR</option>
             </select>
-            <button className="text-gray-400 hover:text-gray-600">
-              <Bell className="h-5 w-5" />
-            </button>
+            {/* Notification Bell */}
+            <div className="relative" ref={dropdownRef}>
+              <button 
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="text-gray-400 hover:text-gray-600 relative p-1 transition-colors"
+              >
+                <Bell className="h-5 w-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white"></span>
+                )}
+              </button>
+
+              {/* Dropdown Menu */}
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+                  <div className="p-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                    <h3 className="font-semibold text-gray-900">Notifications</h3>
+                    {unreadCount > 0 && (
+                      <button 
+                        onClick={handleReadAll}
+                        className="text-xs text-[#0D7AF5] hover:text-blue-700 font-medium flex items-center gap-1"
+                      >
+                        <CheckCheck className="h-3.5 w-3.5" /> Mark all read
+                      </button>
+                    )}
+                  </div>
+                  <div className="max-h-[300px] overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="p-6 text-center text-gray-500 text-sm">
+                        No notifications yet.
+                      </div>
+                    ) : (
+                      notifications.map(notif => (
+                        <div 
+                          key={notif.id}
+                          onClick={() => handleReadNotification(notif.id, notif.link)}
+                          className={`p-4 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors ${!notif.is_read ? 'bg-blue-50/30' : ''}`}
+                        >
+                          <div className="flex gap-3">
+                            <div className="flex-1">
+                              <h4 className={`text-sm ${!notif.is_read ? 'font-semibold text-gray-900' : 'font-medium text-gray-700'}`}>
+                                {notif.title}
+                              </h4>
+                              <p className={`text-xs mt-1 line-clamp-2 ${!notif.is_read ? 'text-gray-600' : 'text-gray-500'}`}>
+                                {notif.message}
+                              </p>
+                              <span className="text-[10px] text-gray-400 mt-2 block">
+                                {new Date(notif.created_at).toLocaleDateString()}
+                              </span>
+                            </div>
+                            {!notif.is_read && (
+                              <div className="w-2 h-2 rounded-full bg-[#0D7AF5] mt-1.5 flex-shrink-0"></div>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <Link href="/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <img 
                 src={userPhoto} 

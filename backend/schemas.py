@@ -13,11 +13,17 @@ class UserBase(BaseModel):
     email: str
     full_name: str
 
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    email: Optional[str] = None
+
 class UserCreate(UserBase):
     password: str
+    birth_date: str
 
 class UserResponse(UserBase):
     id: int
+    birth_date: Optional[str] = None
     is_admin: bool
     is_active: bool
     created_at: datetime
@@ -76,6 +82,10 @@ class Claim(ClaimBase):
 # Policy
 class PolicyBase(BaseModel):
     company_name: str
+    company_domain: Optional[str] = None
+    policy_number: Optional[str] = None
+    vehicle_marque: Optional[str] = None
+    vehicle_matricule: Optional[str] = None
     policy_type: str
     summary: str
     premium_amount: float = 0.0
@@ -123,3 +133,28 @@ class TicketResponse(TicketCreate):
 
 class TicketReply(BaseModel):
     message: str
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+    frontend_url: str
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+class NotificationBase(BaseModel):
+    title: str
+    message: str
+    link: Optional[str] = None
+
+class NotificationCreate(NotificationBase):
+    user_id: int
+
+class NotificationResponse(NotificationBase):
+    id: int
+    user_id: int
+    is_read: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

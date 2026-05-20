@@ -11,11 +11,18 @@ A full-stack, "Digital Filing Cabinet" web app where users can store, manage, an
 | :---: | :---: |
 | ![Policy Assistant](assets/MyInsureHub%20-%20PolicyAssistant.JPG) | ![Claims](assets/MyInsureHub%20-%20Claims.JPG) |
 
-## 🚀 Features
+| Support & Assistance | |
+| :---: | :---: |
+| ![Support](assets/MyInsureHub%20-%20Assistance.JPG) | |
 
+## 🌟 Features
+
+- **Google & Native Authentication**: Secure sign-in using Firebase and traditional credentials with full password recovery workflows.
+- **Bilingual Interface**: Seamlessly switch between English and French with real-time translations across the entire application.
 - **Multi-Policy Vault**: Upload and store multiple insurance policies (Auto, Home, Health, Life).
 - **AI Extraction**: Automatically extracts the company name, policy type, main guarantees, and deductibles using the Groq LLaMA 3.1 model.
 - **Supplemental Documents**: Attach related riders, ID cards, or endorsements directly to a policy's file.
+- **In-App & Email Notifications**: Real-time alerts directly in the navigation bar and via email whenever an admin replies to a ticket.
 - **Manual Claims Tracker**: A CRUD interface to log and track claims (amount, date, description, status) linked directly to specific policies.
 - **Context-Aware AI Chat**: A persistent Chat Assistant scoped strictly by `policy_id`. It physically cannot confuse your Auto policy rules with your Home policy rules.
 - **Modern UI**: A cheerful, professional "Dribbble-style" light theme built with Next.js, featuring a clean Sidebar and TopNav.

@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { UploadDropzone } from '@/components/UploadDropzone';
+import { WelcomeModal } from '@/components/WelcomeModal';
+import { ProfileReminderModal } from '@/components/ProfileReminderModal';
 import { ShieldCheck, Plus, CheckCircle2 } from 'lucide-react';
 import { DashboardAnalytics } from '@/components/DashboardAnalytics';
 import { useLanguage } from '@/context/LanguageContext';
@@ -17,7 +19,12 @@ interface Guarantee {
 interface Policy {
   id: number;
   company_name: string;
+  company_domain?: string;
+  policy_number?: string;
   policy_type: string;
+  vehicle_marque?: string;
+  vehicle_matricule?: string;
+  premium_amount?: number;
   status: string;
   guarantees?: Guarantee[];
 }
@@ -26,6 +33,8 @@ export default function DashboardPage() {
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showProfileReminder, setShowProfileReminder] = useState(false);
   const { t, lang } = useLanguage();
   const { user } = useAuth();
   const [file, setFile] = useState<File | null>(null);
@@ -36,7 +45,26 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchPolicies();
-  }, []);
+    if (user && user.email && !localStorage.getItem(`has_seen_onboarding_${user.email}`)) {
+      setShowWelcome(true);
+    }
+  }, [user]);
+
+  const handleCloseWelcome = () => {
+    setShowWelcome(false);
+    if (user && user.email) {
+      localStorage.setItem(`has_seen_onboarding_${user.email}`, 'true');
+    }
+    handleAddPolicyClick();
+  };
+
+  const handleAddPolicyClick = () => {
+    if (user && user.email && !localStorage.getItem(`profile_completed_${user.email}`)) {
+      setShowProfileReminder(true);
+    } else {
+      setShowUploadModal(!showUploadModal);
+    }
+  };
 
   const fetchPolicies = async () => {
     try {
@@ -98,6 +126,14 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8 max-w-5xl">
       
+      {showWelcome && (
+        <WelcomeModal onClose={handleCloseWelcome} />
+      )}
+      
+      {showProfileReminder && (
+        <ProfileReminderModal onClose={() => setShowProfileReminder(false)} />
+      )}
+
       {/* Header Area */}
       <div className="flex justify-between items-start">
         <div>
@@ -109,7 +145,7 @@ export default function DashboardPage() {
           </p>
         </div>
         <button 
-          onClick={() => setShowUploadModal(!showUploadModal)}
+          onClick={handleAddPolicyClick}
           className="bg-brand-orange hover:opacity-90 text-white px-5 py-2.5 rounded-lg text-[15px] font-medium flex items-center gap-2 transition-colors shadow-sm"
         >
           <Plus className="h-5 w-5" /> {t('add_policy')}
@@ -182,7 +218,7 @@ export default function DashboardPage() {
                     </span>
                   </div>
                   <h3 className="text-[22px] font-bold tracking-tight">
-                    <span className="capitalize">{lang === 'fr' ? `${t('policy')} ${t(shortType as any) || shortType}` : `${t(shortType as any) || shortType} ${t('policy')}`}</span>: {getEmoji(policy.policy_type)} {cleanCompanyName} 
+                    <span className="capitalize">{lang === 'fr' ? `${t('policy')} ${t(shortType as any) || shortType}` : `${t(shortType as any) || shortType} ${t('policy')}`}</span>: {getEmoji(policy.policy_type)} {policy.policy_type.toLowerCase().includes('auto') && policy.vehicle_marque ? `${policy.vehicle_marque} ${policy.vehicle_matricule ? `(${policy.vehicle_matricule})` : ''}` : cleanCompanyName} 
                     <span className={`font-medium text-lg ml-2 ${(policy.status || 'Active') === 'Active' ? 'text-emerald-500' : 'text-gray-500'}`}>
                       ({t((policy.status || 'Active').toLowerCase() as any)})
                     </span>
@@ -193,9 +229,25 @@ export default function DashboardPage() {
                 <div className="p-6 flex-1 flex flex-col">
                   
                   <div className="flex gap-5 mb-6">
-                    {/* Logo Box Placeholder */}
-                    <div className="w-[72px] h-[72px] flex-shrink-0 bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center justify-center p-2">
-                       <span className="font-bold text-center text-[10px] leading-tight text-gray-800 uppercase break-all">
+                    {/* Logo Box */}
+                    <div className="w-[72px] h-[72px] flex-shrink-0 bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center justify-center p-2 overflow-hidden relative">
+                       {policy.company_domain && (
+                         <img 
+                           src={`https://www.google.com/s2/favicons?domain=${policy.company_domain}&sz=128`} 
+                           alt={policy.company_name} 
+                           onError={(e) => {
+                             e.currentTarget.style.display = 'none';
+                             if (e.currentTarget.nextElementSibling) {
+                               (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
+                             }
+                           }}
+                           className="w-full h-full object-contain"
+                         />
+                       )}
+                       <span 
+                         className="font-bold text-center text-[10px] leading-tight text-gray-800 uppercase break-all flex items-center justify-center w-full h-full"
+                         style={{ display: policy.company_domain ? 'none' : 'flex' }}
+                       >
                          {cleanCompanyName}
                        </span>
                     </div>
@@ -221,7 +273,7 @@ export default function DashboardPage() {
 
                   {/* Metadata line */}
                   <div className="text-[13px] text-gray-600 mb-1">
-                    Policy ID: {cleanCompanyName.substring(0,2).toUpperCase()}{policy.id}89321 | Total Premium: TBD
+                    {t('policy')} ID: {policy.policy_number ? policy.policy_number : `#${policy.id}`} | {t('premium_amount')}: {policy.premium_amount ? `${policy.premium_amount} EUR` : t('tbd')}
                   </div>
                   <div className="text-[13px] text-gray-600 mb-5 flex items-center gap-1">
                     {t('status')}: <span className={`${(policy.status || 'Active') === 'Active' ? 'text-emerald-600' : 'text-gray-600'} font-medium`}>{t((policy.status || 'Active').toLowerCase() as any)}</span> {(policy.status || 'Active') === 'Active' && <CheckCircle2 className="h-4 w-4 text-emerald-500 inline" />}

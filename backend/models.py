@@ -10,12 +10,14 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     full_name = Column(String)
+    birth_date = Column(String, nullable=True)
     is_admin = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     policies = relationship("Policy", back_populates="user", cascade="all, delete-orphan")
     tickets = relationship("Ticket", back_populates="user", cascade="all, delete-orphan")
+    notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")
 
 class Policy(Base):
     __tablename__ = "policies"
@@ -23,6 +25,10 @@ class Policy(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     company_name = Column(String, index=True)
+    company_domain = Column(String, nullable=True)
+    policy_number = Column(String, nullable=True)
+    vehicle_marque = Column(String, nullable=True)
+    vehicle_matricule = Column(String, nullable=True)
     policy_type = Column(String, index=True)
     summary = Column(Text)
     premium_amount = Column(Float, default=0.0)
@@ -80,3 +86,16 @@ class Ticket(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="tickets")
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    title = Column(String)
+    message = Column(Text)
+    is_read = Column(Boolean, default=False)
+    link = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", back_populates="notifications")

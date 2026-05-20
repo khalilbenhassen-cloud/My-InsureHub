@@ -5,6 +5,7 @@ import axios from 'axios';
 import { FileText, DollarSign, Clock, CheckCircle, XCircle, Edit2, Trash2, Check, X } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 
 interface Claim {
   id: number;
@@ -17,19 +18,31 @@ interface Claim {
 
 export default function ClaimsPage() {
   const [claims, setClaims] = useState<Claim[]>([]);
+  const [policies, setPolicies] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingClaimId, setEditingClaimId] = useState<number | null>(null);
   const [editFormData, setEditFormData] = useState<Partial<Claim>>({});
-  const { t } = useLanguage();
+  
+  const [filterStatus, setFilterStatus] = useState('');
+  const [filterCompany, setFilterCompany] = useState('');
+  
+  const { t, lang } = useLanguage();
+  const { token, isLoading: authLoading } = useAuth();
 
   useEffect(() => {
-    fetchClaims();
-  }, []);
+    if (!authLoading && token) {
+      fetchClaims();
+    }
+  }, [authLoading, token]);
 
   const fetchClaims = async () => {
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/claims`);
-      setClaims(res.data);
+      const [claimsRes, policiesRes] = await Promise.all([
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/claims`),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/policies`)
+      ]);
+      setClaims(claimsRes.data);
+      setPolicies(policiesRes.data);
     } catch (error) {
       console.error("Failed to fetch claims", error);
     } finally {
@@ -91,6 +104,26 @@ export default function ClaimsPage() {
         </div>
       </div>
 
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row gap-4">
+        <input 
+          type="text" 
+          placeholder={t('search_company') || "Search company..."} 
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm flex-1 outline-none focus:border-brand-navy/50"
+          value={filterCompany}
+          onChange={e => setFilterCompany(e.target.value)}
+        />
+        <select 
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm flex-1 outline-none focus:border-brand-navy/50"
+          value={filterStatus}
+          onChange={e => setFilterStatus(e.target.value)}
+        >
+          <option value="">{lang === 'fr' ? 'Tous les statuts' : 'All statuses'}</option>
+          <option value="Pending">{t('pending') || "Pending"}</option>
+          <option value="Resolved">{t('resolved') || "Resolved"}</option>
+          <option value="Denied">{t('denied') || "Denied"}</option>
+        </select>
+      </div>
+
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         {isLoading ? (
           <div className="p-8 text-center text-gray-400">Loading claims...</div>
@@ -107,7 +140,8 @@ export default function ClaimsPage() {
             <thead className="bg-gray-50">
               <tr>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('date_filed')}</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('policy')} ID</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('company')}</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('policy')}</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('description')}</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('amount')}</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('status')}</th>
@@ -115,8 +149,14 @@ export default function ClaimsPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {claims.map((claim) => {
+              {claims.filter(claim => {
+                const policy = policies.find(p => p.id === claim.policy_id);
+                const companyMatch = filterCompany === '' || (policy && policy.company_name.toLowerCase().includes(filterCompany.toLowerCase()));
+                const statusMatch = filterStatus === '' || claim.status.toLowerCase() === filterStatus.toLowerCase();
+                return companyMatch && statusMatch;
+              }).map((claim) => {
                 const isEditing = editingClaimId === claim.id;
+                const policy = policies.find(p => p.id === claim.policy_id);
                 
                 return (
                 <tr key={claim.id} className={`${isEditing ? 'bg-brand-navy/5' : 'hover:bg-gray-50'} transition-colors`}>
@@ -124,8 +164,13 @@ export default function ClaimsPage() {
                     {new Date(claim.date_filed).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <Link href={`/policies/${claim.policy_id}`} className="text-brand-navy hover:underline text-sm font-bold">
-                      #{claim.policy_id}
+                    <div className="text-sm font-medium text-gray-900">
+                      {policy ? policy.company_name : 'Unknown Company'}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <Link href={`/policies/${claim.policy_id}`} className="text-brand-navy hover:underline text-sm font-medium">
+                      {policy ? (t(policy.policy_type.split('_')[0] as any) || policy.policy_type) : `#${claim.policy_id}`}
                     </Link>
                   </td>
                   <td className="px-6 py-4">
@@ -146,7 +191,7 @@ export default function ClaimsPage() {
                         <DollarSign className="h-4 w-4 text-gray-400 mr-1" />
                         <input 
                           type="number" 
-                          value={editFormData.amount} 
+                          value={editFormData.amount !== undefined && !isNaN(editFormData.amount) ? editFormData.amount : ''} 
                           onChange={(e) => setEditFormData({...editFormData, amount: parseFloat(e.target.value)})}
                           className="w-24 border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-brand-orange focus:border-brand-orange"
                         />

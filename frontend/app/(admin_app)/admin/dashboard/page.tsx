@@ -106,14 +106,14 @@ export default function AdminDashboardPage() {
 
       {isLoading && !stats ? (
         <div className="flex justify-center p-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-orange"></div>
         </div>
       ) : stats && (
         <>
           {/* KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-              <div className="p-4 bg-indigo-50 text-indigo-600 rounded-xl">
+            <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4">
+              <div className="p-4 bg-brand-orange/10 text-brand-orange rounded-xl">
                 <Users className="h-6 w-6" />
               </div>
               <div>
@@ -122,8 +122,8 @@ export default function AdminDashboardPage() {
               </div>
             </div>
             
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-              <div className="p-4 bg-blue-50 text-blue-600 rounded-xl">
+            <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4">
+              <div className="p-4 bg-brand-orange/10 text-brand-orange rounded-xl">
                 <FileText className="h-6 w-6" />
               </div>
               <div>
@@ -132,7 +132,7 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+            <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4">
               <div className="p-4 bg-amber-50 text-amber-600 rounded-xl">
                 <Activity className="h-6 w-6" />
               </div>
@@ -144,17 +144,17 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* User Management Table */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-8">
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mt-8">
             <div className="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
               <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-indigo-600" /> User Directory
+                <ShieldCheck className="h-5 w-5 text-brand-orange" /> User Directory
               </h2>
               <div className="relative">
                 <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input 
                   type="text" 
                   placeholder="Search users..." 
-                  className="bg-white border border-gray-200 text-sm rounded-lg pl-9 pr-4 py-2 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-gray-900 w-64 transition-all"
+                  className="bg-white border border-gray-200 text-sm rounded-xl pl-9 pr-4 py-2 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange text-gray-900 w-64 transition-all"
                 />
               </div>
             </div>
@@ -181,7 +181,7 @@ export default function AdminDashboardPage() {
                           <div>
                             <div className="font-medium text-gray-900 flex items-center gap-2">
                               {u.full_name}
-                              {u.is_admin && <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] rounded-full uppercase font-bold tracking-wider">Admin</span>}
+                              {u.is_admin && <span className="px-2 py-0.5 bg-brand-orange/20 text-brand-orange text-[10px] rounded-full uppercase font-bold tracking-wider">Admin</span>}
                             </div>
                             <div className="text-xs text-gray-500">{u.email}</div>
                           </div>
@@ -200,7 +200,7 @@ export default function AdminDashboardPage() {
                       </td>
                       <td className="px-6 py-4">{new Date(u.created_at).toLocaleDateString()}</td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center justify-center bg-blue-50 text-blue-700 h-6 w-6 rounded-full font-semibold text-xs border border-blue-100">
+                        <span className="inline-flex items-center justify-center bg-brand-orange/10 text-brand-navy h-6 w-6 rounded-full font-semibold text-xs border border-blue-100">
                           {u.policy_count}
                         </span>
                       </td>
@@ -214,20 +214,20 @@ export default function AdminDashboardPage() {
                           <div className="flex justify-end gap-2">
                             <button 
                               onClick={() => router.push(`/admin/users/${u.id}`)}
-                              className="px-3 py-1.5 bg-white hover:bg-gray-50 text-gray-700 rounded-lg text-xs font-medium transition-colors border border-gray-200 shadow-sm"
+                              className="px-3 py-1.5 bg-white hover:bg-gray-50 text-gray-700 rounded-xl text-xs font-medium transition-colors border border-gray-200 shadow-sm"
                             >
                               Inspect
                             </button>
                             <button 
                               onClick={() => handleToggleSuspend(u.id, u.is_active, u.email)}
-                              className="px-3 py-1.5 bg-white hover:bg-gray-50 text-amber-600 rounded-lg text-xs font-medium transition-colors border border-gray-200 shadow-sm flex items-center gap-1"
+                              className="px-3 py-1.5 bg-white hover:bg-gray-50 text-amber-600 rounded-xl text-xs font-medium transition-colors border border-gray-200 shadow-sm flex items-center gap-1"
                             >
                               {u.is_active ? <PowerOff className="h-3.5 w-3.5" /> : <Power className="h-3.5 w-3.5" />} 
                               {u.is_active ? 'Suspend' : 'Reactivate'}
                             </button>
                             <button 
                               onClick={() => handleDeleteUser(u.id, u.email)}
-                              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100"
+                              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors border border-transparent hover:border-red-100"
                               title="Delete User"
                             >
                               <Trash2 className="h-4 w-4" />
