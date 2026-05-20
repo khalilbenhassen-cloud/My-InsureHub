@@ -4,6 +4,7 @@ pypdf
 chromadb
 langchain
 langchain-community
+langchain-groq
 sentence-transformers
 openai
 python-multipart
