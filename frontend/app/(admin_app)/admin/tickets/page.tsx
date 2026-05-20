@@ -6,8 +6,8 @@ import { Ticket, CheckCircle, Clock } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 interface TicketData {
-  id: int;
-  user_id: int;
+  id: number;
+  user_id: number;
   category: string;
   subject: string;
   message: string;
