@@ -127,14 +127,7 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
             </html>
             """
             
-            part = MIMEText(html_body, 'html')
-            msg.attach(part)
-            
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.starttls()
-            server.login(support_email, support_password)
-            server.sendmail(support_email, db_user.email, msg.as_string())
-            server.quit()
+            send_email_via_gas(db_user.email, msg['Subject'], html_content=html_body)
         except Exception as e:
             print(f"Failed to send welcome email: {e}")
             
